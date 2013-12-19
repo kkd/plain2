@@ -636,7 +636,7 @@ int	end;
         static int pic_count=0;
         if(put == &htmlPut) {
 	    if(htmlOnce) {
-		if(rawOutput) {
+		if(rawOutput || !htmlOld) { /* KK */
 		    printf("<PRE>\n");
 		    for( l = begin; l < end; l++) {
 			htmlRawText(texts[l]->body);

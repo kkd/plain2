@@ -1,4 +1,4 @@
-#!/usr/local/bin/tcsh 
+#! /usr/local/bin/tcsh
 #
 # plain2html:	plain text to HTML file
 #		by k-chinen@is.aist-nara.ac.jp , 1994
@@ -8,7 +8,15 @@
 # 	* Handle with care for directory, because this script make
 #	  a lot of temporary file and output file.
 #
-
+# HTML table extension by KOBAYASHI Kenichi, 2001
+#
+# NOTE:
+#	* pass non plain2html options to plain2
+# 	* pnmcrop becomes needless
+# 	* pt2htcol.awk becomes needless
+#	* avoid TBL and PIC filename confliction
+#	* add -q, -c, -dpi, and -avoid options
+#	* automatically select jlatex or platex
 
 #
 # require:
@@ -16,17 +24,12 @@
 #    program:
 #	csh or tcsh
 #	plain2 ( have -html option verison )
-#	awk
+#	awk, sed
 #	groff ( gtbl, gpic )
 #	latex or jlatex
 #	dvi2ps
 #	convert ( convertable PS to Any-format version )
-#	pnmcrop ( included PBMPLUS )
 #	ghostscript ( called by convert when convert PS format )
-#
-#    script:
-#	pt2htcol.awk ( included this packeage )
-#
 #
 # input:
 #	$1 (plain text file name.  e.g., README.j)
@@ -46,13 +49,17 @@
 #
 set tex=1
 set roff=0
-set lib=/usr/local/lib/plain2
-
+set options=()
+set quiet=0
+set stdout=0
+set dpi=144
+set avoid=0
+set ext="gif"
 
 #
 # Check args.
 #
-if ( $#argv > 0 ) then
+while ( $#argv > 0 )
 	switch ($1)
 	case -tex:
 		set tex=1
@@ -64,13 +71,49 @@ if ( $#argv > 0 ) then
 		set roff=1
 		shift
 		breaksw
-	default:
+	case -q:
+		set quiet=1
+		shift
 		breaksw
+	case -c:
+		set quiet=1
+		set stdout=1
+		shift
+		breaksw
+	case -dpi:
+		shift
+		set dpi=$1
+		shift
+		breaksw
+	case -jpeg:
+	case -jpg:
+		set ext=jpg
+		shift
+		breaksw
+	case -png:
+		set ext=png
+		shift
+		breaksw
+	case -avoid:
+		set avoid=1
+		shift
+		breaksw
+	case -*:
+		set options = ($options $1)
+		shift
+		breaksw
+	default:
+		break
 	endsw
-endif
+end
 
-if ( $#argv > 0 ) then
+if ( $#argv > 0) then
 	set target=$1
+	if ($avoid) then
+		set avoid_pre="$target:r_"
+	else
+		set avoid_pre=""
+	endif
 else
 	cat << END_USAGE
 plain2html: plain text to HTML file
@@ -78,13 +121,32 @@ plain2html: plain text to HTML file
 
 usage: plain2html [option] input-filename
 
-option:		-tex	TeX mode (use latex, dvi2ps) [defauts]
+option:		-tex	TeX mode (use latex, dvi2ps) [defaults]
 		-roff	roff mode (use groff)
-
+		-q	quiet mode
+		-c	use stdout (-q is implied)
+		-dpi n	specify dpi (default value is 144)
+		-avoid	avoid filename confliction
+		-png	use PNG format
+		-jpeg	use JPEG format
 END_USAGE
 	exit
 endif
 
+
+#
+# search latex command
+#
+if ( { platex -v } ) then >& /dev/null
+	set latex = "platex"
+	set dvi2ps = "dvips"
+else if ( { jlatex -v } ) then >& /dev/null
+	set latex = "jlatex"
+	set dvi2ps = "dvi2ps"
+else
+	set latex = "latex"
+	set dvi2ps = "dvi2ps"
+endif
 
 
 #
@@ -93,16 +155,38 @@ endif
 #	collect table/picture location and cut these.
 #
 
-echo "Copy Target $target ."
+if (! $quiet ) echo "Copy Target $target ."
 cp $target _src
 
-echo "Process document main body"
-plain2 -html -jis -here _src > _out.html
+if (! $quiet) echo "Process document main body"
+if (! $avoid && $ext == "gif") then
+	plain2 -html -here $options _src > _out.html
+else if (! $avoid) then
+	plain2 -html -here $options _src \
+	| sed -e s/\\\(\<IMG\ SRC=\"\[PT]\[IB]\[CL]\[0-9]\[0-9]\[0-9]\[0-9]\[0-9]\\.\\\)gif/\\1$ext/ > _out.html
+else
+	plain2 -html -here $options _src \
+	| sed -e s/\\\(\<IMG\ SRC=\"\[PT]\[IB]\[CL]\[0-9]\[0-9]\[0-9]\[0-9]\[0-9]\.\\\)gif/\\1$ext/ \
+	| sed -e s/\\\(\<IMG\ SRC=\"\\\)\\\(\[PT]\[IB]\[CL]\[0-9]\\\)/\\1$avoid_pre\\2/ > _out.html
+endif
 
-echo "Collect Table/Picutre"
-awk -f $lib/pt2htcol.awk _out.html > _cut.sh
-
-
+if (! $quiet) echo "Collect Table/Picutre"
+awk -f - _out.html > _cut.sh <<EOF
+/^<!-- plain2:TABLE/{
+	# print "# " \$0
+	printf "# table %d th, start %d, end %d\n", \$3, \$4, \$5
+	printf "echo '[[T' > TBL%05d.p\n", \$3
+	printf "head -%d _src| tail -%d >> TBL%05d.p\n",\$5-1, \$5-\$4, \$3
+	printf "echo ']]T' >> TBL%05d.p\n", \$3
+}
+/^<!-- plain2:PICTURE/{
+	# print "# " \$0
+	printf "# picture %d th, start %d, end %d\n", \$3, \$4, \$5
+	printf "echo '[[P' > PIC%05d.p\n", \$3
+	printf "head -%d _src| tail -%d >> PIC%05d.p\n",\$5-1, \$5-\$4, \$3
+	printf "echo ']]P' >> PIC%05d.p\n", \$3
+}
+EOF
 
 #
 # Convert parts(table/picture) via LaTeX
@@ -115,14 +199,14 @@ cat << END_STYLEFILE > pt2empty.sty
 \\pagestyle{empty}
 END_STYLEFILE
 cat << END_TEX_CUT >> _cut.sh
-foreach i ( TBL*.p PIC*.p ) 
+set p = ()
+set p = (TBL*.p PIC*.p) >& /dev/null
+foreach i ( \$p ) 
 	echo "Part \$i process"
         plain2 -tex -jis -tstyle=pt2empty \$i > \$i:r.tex
-        jlatex \$i:r.tex
-        dvi2ps \$i:r.dvi > \$i:r.ps
-	convert -density 144x144 \$i:r.ps \$i:r.pnm
-	pnmcrop -white \$i:r.pnm > _tmp.pnm
-	convert _tmp.pnm \$i:r.gif
+        $latex \$i:r.tex
+        $dvi2ps \$i:r.dvi > \$i:r.ps
+	convert -density "$dpi"x"$dpi" -crop 0x0 \$i:r.ps $avoid_pre\$i:r.$ext
 	rm -f \$i:r.ps \$i:r.dvi \$i:r.aux \$i:r.log \$i:r.tex \$i:r.p \$i:r.pnm
 end
 END_TEX_CUT
@@ -134,13 +218,13 @@ endif
 #
 if ( $roff ) then
 cat << END_ROFF_CUT >> _cut.sh
-foreach i ( TBL*.p PIC*.p ) 
+set p = ()
+set p = (TBL*.p PIC*.p) >& /dev/null
+foreach i ( \$p ) 
 	echo "Part \$i process"
 	plain2 -roff -euc  \$i > \$i:r.src
 	groff -me -t -p \$i:r.src > \$i:r.ps
-	convert -density 144x144 \$i:r.ps \$i:r.pnm
-	pnmcrop -white \$i:r.pnm > _tmp.pnm
-	convert _tmp.pnm \$i:r.gif
+	convert -density "$dpi"x"$dpi" -crop 0x0 \$i:r.ps $avoid_pre\$i:r.$ext
 	rm -f \$i:r.ps \$i:r.src \$i:r.p \$i:r.pnm
 end
 END_ROFF_CUT
@@ -149,11 +233,20 @@ endif
 #
 # Run parts conversion script
 #
-echo "Cut Table/Picture"
-$shell _cut.sh
+if (! $quiet) echo "Cut Table/Picture"
+if ($stdout) then
+	$shell _cut.sh >& /dev/null
+else
+	$shell _cut.sh
+endif
 
-rm -f $target:r.html
-mv _out.html $target:r.html
 rm -f _cut.sh pt2empty.sty _src _tmp.pnm
+if ($stdout) then
+	cat _out.html
+	rm -f _out.html
+else
+	rm -f $target:r.html
+	mv _out.html $target:r.html
+endif
 
-echo "Complete"
+if (! $quiet) echo "Complete"

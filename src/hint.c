@@ -25,6 +25,7 @@ struct	hintStr {
 	{ "[[N", "]]N", TB_CENTER },
 	{ "[[A", "]]A", TB_RIGHT },	/* Adjust right */
 	{ "[[C", "]]C", TB_COMMENT },	/* comment out	*/
+	{ "[[M", "]]M", TB_MARKUP },	/* KK (KOBAYASHI Kenichi) */
 	{ "", "", 0}};
 checkIfHint(s, which)
 char	*s;
@@ -63,6 +64,20 @@ int	end;
 			l++;
 			while (l < end) {
 				if (checkIfHint(texts[l]->body, 1) == tbType){
+/* KK */
+					if (tbType == TB_MARKUP) {
+						if (
+#ifdef HTML
+						    (put == &htmlPut && texts[rbegin]->body[3] == 'H') ||
+#endif
+						    (put == &texPut && texts[rbegin]->body[3] == 'T') ||
+						    (put == &roffPut && texts[rbegin]->body[3] == 'R')) {
+							tbType = TB_RAW;
+						} else {
+							tbType = TB_COMMENT;
+						}
+					}
+/* KK end */
 					l++;
 					tbp = newTextBlock(rbegin, l, tbType);
 					tbType = 0;

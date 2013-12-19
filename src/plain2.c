@@ -18,27 +18,27 @@
 
 #ifdef HTML
 #define	PLAIN2_USAGE_1	"\
-usage: plain2 [options] [files ...]\n\n\
+usage: plain2 [options] [files ...]\n\
   ---- parser options ----		   ---- output options ----(default)\n\
 -table=dd: table factor	 [0-100](def=50) -roff:	    troff output\n\
--exam=dd:  example factor[0-100](def=50) -ms/-mm:   troff macro	       (mm)\n\
+-exam=dd:  example factor[0-100](def=50)  -ms/-mm:   troff macro       (mm)\n\
 -indsec:   sections can be indented      -tex:      tex output\n\
--ktable:enable JIS keisen table		 -tstyle=ss:tex style\n\
+-ktable:enable JIS keisen table		  -tstyle=ss:tex style / CSS file\n\
 -ref:	   figure/picture reference	 -html:     HTML output\n\
-					 -htmlonce: HTML (one path) output\n\
-					 -here:	    HTML table/picture ref.\n\
-					 -renum:    renumbering only\n\
+					  -htmlold:  old HTML output\n\
+  ---- encoding ----			  -htmlonce: HTML (one path) output\n\
+-jis:      JIS code output		  -here:     HTML table/picture ref.\n\
+-sjis:     Shift-JIS code input/output	 -renum:    renumbering only\n\
  					 -[no]listd:list decoration    (on)\n\
   ---- Others ----			 -[no]space:spacing            (on)\n\
 -v:	   verbose output		 -[no]pre:  preamble block     (on)\n\
 -dLevel:   debug level			 -[no]acursec: section numbers (off)\n\
   ----- experimental ----		 -raw:      quote special chars(off)\n\
--pt=Size:  font size			 -jis:      JIS code output\n\
- 					 -sjis:     Shift-JIS code input/output\n\
- 					 -f file:   output customization\n\n"
+-pt=Size:  font size			 -f file:   output customization\n\n"
 #define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation\n\
 \t(HTML output) by k-chinen@is.aist-nara.ac.jp, NAIST\n\
-\t(unofficial patch 98/08/13 by N.Nide)"
+\t(unofficial patch 98/08/13 by N.Nide)\n\
+\t(HTML table by KOBAYASHI Kenichi 2002/02/09)"
 #else
 #define	PLAIN2_USAGE_1	"\
 usage: plain2 [options] [files ...]\n\
@@ -67,6 +67,7 @@ extern struct macDefs	roffMacros[], roffMsMacros[];
 extern struct macDefs	texMacros[];
 #ifdef HTML
 extern struct macDefs   htmlMacros[];
+extern struct macDefs   htmlOldMacros[]; /* KK (KOBAYASHI Kenichi) */
 #endif
 
 /*
@@ -101,6 +102,7 @@ int verbose	    =  0;
 #ifdef HTML
 int htmlOnce        =  0;
 int htmlHere        =  0;
+int htmlOld	    =  0;	/* KK */
 #endif
 char *plain2Lib	    = NULL;
 char *macroName	    = NULL;
@@ -182,6 +184,10 @@ char	 **argv;
 		acceptOutOption = 0;
 		argind++;
 	}
+#ifdef HTML
+	if (!htmlOld && put == &htmlPut)
+		htmlPutFootnote();
+#endif
 	if (anySection)
 		putMacro(M_SECTION_END);
 	if (preamble)
@@ -247,7 +253,13 @@ doPlain2()
 		firstTime = 0;
 #ifdef HTML
 		if (put == &htmlPut) {
-			initMacroDefs(htmlMacros);
+/* KK */
+			if (!htmlOld) {
+				initMacroDefs(htmlMacros);
+			} else {
+				initMacroDefs(htmlOldMacros);
+			}
+/* KK end */
 			/* sorry, nothing is change this "if" */
 			if (halfCooked) {
 				htmlSetTrans(0);
@@ -273,6 +285,13 @@ doPlain2()
 			}
 		}
 		if (preamble) {
+/* KK */
+#ifdef HTML
+		  if (put == &htmlPut && !htmlOld) {
+			  htmlHeader();
+		  } else
+#endif		  
+/* KK end */
 		  if (stflag)  {
 			char	*p = nttSty(texStyle), *q = asciiSty(texStyle);
 
@@ -409,9 +428,8 @@ char	**xargv;
 				outputCode = CODE_SJIS;
 				inputCode  = CODE_SJIS;
 			}
-			else if (strcmp(optarg, "trict") == 0) {
-					stflag = 0;
-			}
+			else
+/* KK */
 #endif
 				if (strcmp(optarg, "pace") == 0) {
 					OUTPUT_OPTION("-space");
@@ -536,6 +554,14 @@ char	**xargv;
 				OUTPUT_OPTION("-here");
 				htmlHere = 1;
 			}
+/* KK */
+			else if (strcmp(optarg, "tmlold") == 0) {
+				OUTPUT_OPTION("-htmlold");
+				htmlOld = 1;
+				htmlOnce = 0;
+				put = &htmlPut;
+			}
+/* KK end */
 #endif
 			else	goto usage;
 			break;

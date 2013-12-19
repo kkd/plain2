@@ -128,6 +128,13 @@ struct	titleKey {
 	"97/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
 	"98/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
 	"99/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+/* KK (KOBAYASHI Kenichi) */
+	"00/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+	"01/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+	"02/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+	"03/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+	"04/",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+/* KK end */
 	"/90",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
 	"/91",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
 	"/92",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
@@ -224,7 +231,7 @@ int	end;
 			DBG1(3,"TITLE Option = %s\n", s);
 			while (*s != '\0' && *s != ' ')
 				s++;
-			if (optionLine(s)) {
+			if (optionLine(strsave(s))) {
 				(void)fprintf(stderr,
 					      "Illegal option in %s\n%s\n",
 					      fname, s);
@@ -354,3 +361,17 @@ outputTitle()
 #endif
 		      );
 }
+
+/* KK */
+char *
+getTitle()
+{
+    return titleElements[TENT_TITLE][0];
+}
+
+char *
+getAuthor()
+{
+    return titleElements[TENT_NAME][0];
+}
+/* KK end */

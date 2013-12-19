@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1991,1992,1993 NEC Corporation.
- * $Id: plain2.h,v 2.21 1994/04/19 10:16:57 uchida Exp $ (NEC)
+ * $Id: plain2.h,v 1.5 2001-12-06 18:24:01+09 kenichi Exp $ (NEC)
  */
 /*
  * plain2 -- plain tex to {roff, LaTeX} translator
@@ -112,6 +112,7 @@ struct	textBlock {
 #define	TB_APPENDIX	15	/* appendix		*/
 #define	TB_CAPSULE	16	/* encapsulation	*/
 #define	TB_COMMENT	17	/* to be ignored	*/
+#define TB_MARKUP	18	/* mark up */ /* KK (KOBAYASHI Kenichi) */
 	short	type;		/* Type of block	*/
 	short	rbegin;		/* Region begin		*/
 	short	rend;		/* Region end		*/
@@ -213,6 +214,7 @@ extern int texQuote;			/* Use \verb| | for tex output	*/
 #ifdef HTML
 extern int htmlOnce;			/* One/Multi-path flag for HTML */
 extern int htmlHere;			/* flag of pic/tbl here or not  */
+extern int htmlOld;     /* KK */ /* old HTML mode for backward compatibility */
 #endif
 extern int indexEnabled;		/* Enables Indexing		*/
 extern int fontSize;			/* font size			*/
@@ -339,6 +341,9 @@ extern struct outDev	*put;
 #define	IL_REFERENCE	3
 #define	IL_BOLD		4
 #define	IL_INDEX	5
+#define IL_MARKUP	6	/* KK (KOBAYASHI Kenichi) */
+#define IL_HYPERLINK	7	/* KK */
+#define IL_SUBSCRIPT	8	/* KK */
 
 extern	char	*malloc();
 

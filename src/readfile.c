@@ -209,8 +209,14 @@ readAndStoreFile()
 		bzero((char *)textp, sizeof(struct text));
 		textp->next   = NULL;
 
-		if (buf[len=strlen(buf)-1] == '\n')
+/* KK (KOBAYASHI Kenichi) */
+		if (buf[len=strlen(buf)-1] == '\n') {
+			if (buf[len-1] == '\r') {
+				buf[len-1] = '\0';
+			}
 			buf[len] = '\0';
+		}
+/* KK end */
 		storeLine(textp, buf);
 		textLines++;
 	}

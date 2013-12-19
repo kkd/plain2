@@ -1,0 +1,408 @@
+#!/usr/bin/perl -w
+
+use English;
+use Getopt::Long;
+use POSIX qw(strftime);
+
+$option_env = "P2HINDEX";
+
+$opt_index = -1;
+$opt_frame = -1;
+$opt_table = -1;
+$opt_uri = 1;
+$opt_noframes = 0;
+$opt_timestamp = 0;
+$opt_timestamp_format = "";
+$opt_noindex = 0;
+$opt_fcss = "";
+$opt_width = "200";
+$opt_level = "2-3";
+$opt_help = 0;
+$opt_stdout = 0;
+$opt_fis = "_i";
+$opt_fbs = "_b";
+$opt_key = "";
+$opt_index_name = "Index";
+$opt_frame_template = "";
+$opt_index_dot1 = "-";
+$opt_index_dot2 = "-";
+
+$uri_template = "((s?https?|ftp|mailto):[-+:;?,.*'\$!\@%&=+~\/0-9a-zA-Z_]+)";
+$index_header = "<h2 class=\"index\">%s</h2>\n";
+$timestamp_fmt = "Last modified at %c";
+$disabled = 100000000;
+$recursive_level = 0;
+
+$frame_index_template = <<END;
+<html>
+<head>
+<!-- *encoding* -->
+<!-- *css* -->
+</head>
+<body class="index_frame">
+<h2 class="index">
+<!-- *title* -->
+</h2>
+<hr>
+<table width="100%">
+<!-- *index* -->
+</table>
+<hr>
+<font size="-1">
+<!-- *timestamp* -->
+</font>
+</body>
+</html>
+END
+
+for (0..1) {
+    if ($_ == 0) {
+	@save_argv = @ARGV;
+	if (!exists $ENV{$option_env}) { next; }
+	@ARGV = get_args($ENV{$option_env});
+    } else {
+	@ARGV = @save_argv;
+    }
+    GetOptions("index|i:i", "frame|f:i", "table|t:i", "noindex|n",
+	       "timestamp|m!", "uri|url!", "noframes!", 
+	       "fcss=s", "width=s", "level=s", "stdout|c",
+	       "fis=s", "fbs=s", "key=s", "index-name|in=s",
+	       "timestamp-format|mfmt=s", "help",
+	       # hidden options
+	       "frame-template=s", "index-dot1=s", "index-dot2=s"
+	       );
+}
+
+if ($opt_help) { print <<END; exit 0; }
+p2hindex [options] [html-files]
+ options:                                                  (default)
+  -i, -index [n]        create list style index	            on
+  -f, -frame [n]        create frame style index	    off
+  -t, -table [n]        create table style index	    off
+  -n, -noindex          don\'t create index
+  -c, -stdout           output to stdout
+  -m, -timestamp	insert modified timestamp
+  -[no]uri              convert URI to hyperlink            on
+  -w, -width <str>      index width                         "200"
+  -l, -level <n-m>      indexing <H?> tag level             "2-3"
+  -nof, -noframes       create <NOFRAMES> tag
+  -fcss <css-file>      insert CSS file into index frame    none
+  -fis <suffix>         index frame filename suffix         "_i"
+  -fbs <suffix>         body frame filename suffix          "_b"
+  -mfmt			set timestamp format		    "...%C"
+  -k, key <key,n>       place index before <n>th <key> tag  ""
+  -n, -index-name <s>   set index name                      "Index"
+  -h, -help             display this message
+
+  html-files:
+    Without files, STDIN/OUT are used, and -frame option is ignored.
+    With 2 or more files, -stdout is ignored.
+END
+
+if ($opt_table eq "") { 
+    $opt_table = 0; 
+} elsif ($opt_table < 0) { 
+    $opt_table = $disabled; 
+} 
+if ($opt_frame eq "") { 
+    $opt_frame = 0; 
+} elsif ($opt_frame < 0) { 
+    $opt_frame = $disabled; 
+}
+if ($opt_index eq "") { 
+    $opt_index = 0; 
+} elsif ($opt_index < 0) { 
+    $opt_index = $disabled; 
+}
+if ($#ARGV < 0) {
+    $opt_frame = $disabled;
+    $opt_stdout = 1;
+} elsif ($#ARGV >= 1) {
+    $opt_stdout = 0;
+}
+if ($opt_index == $disabled && $opt_table == $disabled 
+    && $opt_frame == $disabled) { 
+    $opt_index = 0; 
+}
+
+($key, $key_no) = split(/,/, $opt_key);
+if (!defined $key || $key ne "") { $key = "!-- toc --"; }
+if (!defined $key_no) { $key_no = "1"; }
+
+if ($opt_timestamp_format ne "") {
+    $timestamp_fmt = $opt_timestamp_format;
+    $opt_timestamp = 1;
+}
+
+if ($opt_frame_template ne "" && open(TMPL, $opt_frame_template)) {
+    while (<TMPL>) {
+	s/\s*$//;
+	push @frame_index_lines, $_;
+    }
+    close(TMPL);
+} else {
+    @frame_index_lines = split(/\n/, $frame_index_template);
+}
+
+if ($#ARGV < 0) {
+    process_file("");
+} else {
+    while ($_ = shift @ARGV) {
+	process_file($_);
+    }
+}
+
+exit 0;
+
+
+# === SUB ROUTINES ==================================================
+
+sub process_file {
+    $file = $_[0];
+
+    $title = "";
+    $encoding = "";
+    $in_body = 0;
+    $min_Hn = 999;
+    $max_Hn = 0;
+    $nth_key = 0;
+    $noindex = $opt_noindex;
+
+    if ($file eq "") {
+	$in = *STDIN;
+    } else {
+	open(IN, $file) or die "Cannot open file \"$file\"";
+	$in = *IN;
+    }
+    
+    @line = ();
+    read_file($in);
+    if ($file eq "") {
+	close($in);
+    }
+    
+    @index_str = ();
+    @index_level = ();
+    for (@line) {
+	if (/^\s*<H([$opt_level])>(.*)<\/H\1>/i) {
+	    $lvl = $1;
+	    $head = $2;
+	    $head =~ s/ name=(\"?)/ href=$1\#/;
+	    push @index_str, ($head);
+	    push @index_level, (int($lvl));
+	    if (int($lvl) > $max_Hn) { $max_Hn = int($lvl); }
+	    if (int($lvl) < $min_Hn) { $min_Hn = int($lvl); }
+	}
+	if (/^(.*<META.*charset=.*)$/i) {
+	    $encoding = $1 . "\n";
+	}
+	if (/^<!-- no-toc -->\s*$/) {
+	    $noindex = 1;
+	}
+	if (/<TITLE>(.*)<\/TITLE>/i) {
+	    $title = $1;
+	}
+    }
+    
+    $index = ($#line >= $opt_index && !$noindex);
+    $frame = ($#line >= $opt_frame && !$noindex);
+    $table = ($#line >= $opt_table && !$noindex);
+    if ($index && $table) {
+	$index = $opt_index > $opt_table;
+	$table = !$index;
+    }
+    
+    if ($frame) {
+	$body_file = $file;
+	$index_file = $file;
+	$body_file =~ s/\.([^.]+)/$opt_fbs.$1/;
+	$index_file =~ s/\.([^.]+)/$opt_fis.$1/;
+	open(INDEX, ">$index_file") or die "Cannot open file";
+	open(BODY, ">$body_file") or die "Cannot open file";
+	
+	frame_index();
+    }
+    
+    if ($opt_stdout) {
+	$out = *STDOUT;
+    } else {
+	open(OUT, ">$file") or die "Cannot open file";
+	$out = *OUT;
+    }
+    
+    for (@line) {
+	if ($key ne "" && /<$key[ \/>]/i && ++$nth_key == int($key_no)) {
+	    if (!$frame || $opt_noframes) {
+		if ($table) {
+		    table_index();
+		} elsif ($index) {
+		    section_index();
+		}
+	    }
+	    if ($key =~ /--!.*--/) { next; }
+	}
+	if ($opt_uri && !/href=|HREF=|src=|SRC=/) {
+	    s/$uri_template/<a href="$1">$1<\/a>/g;
+	}
+	if ($frame && /^<body>$/i) {
+	    printf($out "<FRAMESET cols=\"%s,*\">\n", $opt_width);
+	    printf($out "  <FRAME src=\"%s\" name=\"index\">\n", $index_file);
+	    printf($out "  <FRAME src=\"%s\" name=\"body\">\n", $body_file);
+	    print $out "  <NOFRAMES>\n";
+	    $in_body = 1;
+	}
+	if (/^\s*<\/body>$/i && $opt_timestamp) {
+	    $_ = "<hr>\n" . timestamp() . "\n" . $_;
+	}
+	if ($frame) {
+	    s/(<A )([^>]*href=\"[^\#])/$1target=\"_top\" $2/ig;
+	    print BODY $_;
+	    if (/^<!DOCTYPE/) {
+		$_ =~ s/Transitional/Frameset/;
+	    }
+	}
+	if (!$frame || $opt_noframes || !$in_body) {
+	    print $out $_;
+	}
+	if ($frame && /<\/body>$/i) {
+	    if (!$opt_noframes) {
+		print $out "No frame version is <a href=\"$body_file\">here</a>.\n";
+	    }
+	    print $out "  </NOFRAMES>\n";
+	    print $out "</FRAMESET>\n";
+	    $in_body = 0;
+	}
+    }
+}
+
+
+sub section_index {
+    printf($out $index_header, $opt_index_name);
+    print $out "<ul>\n";
+    for (0..$#index_str) {
+	$str = $index_str[$_];
+	for $i ($min_Hn .. $index_level[$_] - 1) {
+	    print $out "<ul>";
+	}
+	print $out "<li>" . $str;
+	for $i ($min_Hn .. $index_level[$_] - 1) {
+	    print $out "</ul>";
+	}
+	print $out "\n";
+    }
+    print $out "</ul>\n<hr>\n";
+}
+
+sub table_index {
+    print $out "<table class=\"index_table\" width=\"$opt_width\"\n";
+    print $out " align=right border=\"3\">\n";
+    print $out "<tr><td>\n";
+    printf($out $index_header, $opt_index_name);
+    print $out "<table width=\"100%\">\n";
+    print_table_index_body($out, "");
+    print $out "</table>\n";
+    print $out "</table>\n"
+}
+
+sub frame_index {
+    while ($_ = shift @frame_index_lines) {
+	if (/^<!-- \*encoding\* -->$/) {
+	    print INDEX $encoding;
+	    next;
+	} elsif (/^<!-- \*css\* -->$/) {
+	    if ($opt_fcss ne "") {
+		print INDEX "  <LINK rel=\"StyleSheet\" type=\"text/css\" href=\""
+		    . $opt_fcss . "\">\n";
+		next;
+	    }
+	} elsif (/^<!-- \*title\* -->$/) {
+	    print INDEX $title . "\n";
+	    next;
+	} elsif (/^<!-- \*index\* -->$/) {
+	    print_table_index_body(INDEX, $body_file);
+	    next;
+	} elsif (/^<!-- \*timestamp\* -->$/) {
+	    if ($opt_timestamp) {
+		print INDEX timestamp() . "\n";
+		next;
+	    }
+	}
+	print INDEX $_ . "\n";
+    }	
+}
+
+sub print_table_index_body {
+    my $fh = $_[0];
+    my $body_file = $_[1];
+    my $w = $max_Hn - $min_Hn;
+    my $str;
+    
+    if ($w > 2) { $w = 2; }
+    
+    for (0..$#index_str) {
+	$str = $index_str[$_];
+	if ($body_file ne "") {
+	    if ($str !~ s/href=\"([^\"]*)\"/href=\"$body_file$1\" target=\"body\"/g) {
+		$str =~ s/href=([^ >]*)/href=$body_file$1 target=\"body\"/g;
+	    }
+	}
+	if ($index_level[$_] == $min_Hn) {
+	    printf($fh " <tr><th colspan=\"%d\" align=\"left\">%s\n",
+		   $w + 1, $str);
+	} elsif ($index_level[$_] == $min_Hn + 1) {
+	    printf($fh " <tr><td>%s<td colspan=\"%d\" align=\"left\"><font size=\"-1\">\n%s</font>\n",
+		   $opt_index_dot1, $w, $str);
+	} else {
+	    printf($fh " <tr><td> <td>%s<td><font size=\"-1\">\n%s</font>\n",
+		   $opt_index_dot2, $str);
+	}
+    }
+
+}
+
+sub read_file {
+    my $fh = $_[0];
+    my $new_fh;
+    my $quote_f;
+    
+    $recursive_level++;
+    while (<$fh>) {
+	if (/^<!--\s+include\s+([^ ]+)\s+([^\s]*)\s*-->\s*$/) {
+	    $new_fh = "NEW_FH" . $recursive_level;
+	    if (open($new_fh, $1)) {
+		$quote_f = ($2 eq "+q");
+		if ($quote_f) {
+		    push @line, ("<BLOCKQUOTE class=\"include\">\n");
+		}
+		read_file($new_fh);
+		close($new_fh);
+		if ($quote_f) {
+		    push @line, ("</BLOCKQUOTE>\n");
+		}
+		next;
+	    }
+	}
+	push @line, ($_);
+    }
+    $recursive_level--;
+}
+
+sub timestamp {
+    ($sec, $min, $hour, $mday, $mon, $year) = localtime();
+    return strftime($timestamp_fmt, $sec, $min, $hour, $mday, $mon, $year);
+}
+
+sub get_args {
+    my $str = $_[0];
+    my @args = ();
+    my $arg;
+    
+    while ($str =~ s/^\s*((\"\"|\".*[^\\]\"|\'\'|\'.*[^\']\'|[^\s\"\']+)+)//) {
+	$arg = $1;
+	$arg =~ s/([^\\])[\'\"]/$1/g;
+	$arg =~ s/^[\'\"]//g;
+	$arg =~ s/\\([\'\"])/$1/g;
+	push @args, $arg;
+    }
+    return @args;
+}

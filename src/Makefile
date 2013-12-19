@@ -47,7 +47,10 @@ TAGS: ${SRCS}
 
 install:
 	install -s plain2 ${BINDIR}
-	cp ../lib/*.p2 ${LIBDIR}
+	install plain2html ${BINDIR}
+	install p2hindex ${BINDIR}
+	install -d ${LIBDIR}
+	install -m 0644 ../lib/*.p2 ${LIBDIR}
 
 clean:
 	rm -f plain2 *.o asccvt x.c error.LINT

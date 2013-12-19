@@ -1,0 +1,134 @@
+『plain2のHTMLテーブル拡張パッチ』
+        by KOBAYASHI Kenichi
+        2002/02/09
+
+1. はじめに
+
+plain2はプレーンテキストをそのまま見目よいTeX/HTML/roff形式に変換で
+きる便利なツールです。
+
+本パッチはplain2にHTMLのテーブルを出力する機能など、いくつかの機能を
+拡張するものです。
+
+拡張機能の詳細については添付の HTML-table.pln を参照してください。
+
+
+1.1 更新履歴
+
+2002/01/06: 1.00 新規作成
+2002/02/09: 1.01  -renumオプション動作でoption以降の文字が消えるバグを修正
+
+
+2. 本パッチについて
+
+plain2は内田@NECさんが公開されて以来、さまざまな経緯を経ています。現
+在私が把握しているplain2の最新版はDebian JP Projectでメンテされてい
+る、plain2-2.54p1-4.1です。これは私の知る限り、
+
+ - 内田@NECさんのオリジナル (バージョン2.54)
+ - 知念@NAISTさんの2.53用HTMLパッチ
+ - 新出@奈良女子大学さんの2.54用パッチ
+ - Debian JP Projectの方々の修正
+
+をまとめたものです。HTMLテーブル拡張パッチを作成するに当り、これを利用
+しました。オリジナルの作者の内田さんをはじめ、いままでのパッチ製作者や
+メンテナの方々に感謝の意を表します。
+
+
+3. 本パッチの内容物
+
+ - plain2に対するパッチ
+ - 本ドキュメント
+ - 詳細説明ドキュメント (HTML-table.pln)
+ - plain2が出力したHTMLにインデックスを付けるスクリプト (p2hindex)
+
+
+4. 動作環境
+
+UNIXやWindowsなど、plain2が今まで動いていた環境ならそのまま動くと思い
+ます。現状でコンパイルおよび動作が確認された環境/OSは以下の通りです。
+他の環境/OSでも動作が確認されましたらご一報ください。
+
+ - Solaris8, Solaris2.6
+ - Linux (Debian2.2)
+ - cygwin
+
+
+5. plain2の作成
+
+5.1. plain2ソースと既存のパッチの入手
+
+本パッチの他に以下の2つのファイルを入手してください。
+
+ - plain2_2.54p1.orig.tar.gz (内田@NECさんのオリジナル)
+ - plain2_2.54p1-4.1.diff.gz (過去のパッチをまとめたもの)
+
+Debian JP Projectのサイト: http://ftp.debian.or.jp/debian-jp/pool/main/p/plain2/
+またはそのミラーサイトから入手できます。
+
+5.2. 展開とコンパイル
+
+plain2_2.54p1.orig.tar.gzを展開して、パッチ
+plain2_2.54p1-4.1.diff.gzを当てた後、同じディレクトリで同様に
+plain2-2.54-html-table.diff.gzを当ててください。
+
+3つのファイルが同じディレクトリに置いてあるとすると、
+> tar xvzf plain2_2.54p1.orig.tar.gz
+> cd plain2-2.54p1.orig
+> gzip -dc ../plain2_2.54p1-4.1.diff.gz | patch -p1
+> gzip -dc ../plain2-2.54-html-table.diff.gz | patch -p1
+とすれば展開完了です。
+
+次に以下のファイルを必要に応じて編集します。
+ - src/Makefile
+ - src/plain2.h
+ - src/plain2html
+ - src/p2hindex
+
+多くの場合、コンパイルする際に変更する必要がある箇所は以下のマクロ5箇
+所のみでしょう。
+
+src/Makefile:
+ - BINDIR
+ - LIBDIR
+ - CFLAGS               (-DBSD の有/無)
+
+src/plain2.h:
+ - MACRO_LIB
+ - INTERNAL_CODE
+
+シフトJIS の環境ではマクロ INTERNAL_CODE に CODE_SJIS を定義して、ソー
+スの漢字コードを シフトJIS に変換する必要があります。
+
+src/plain2html と src/p2hindex はスクリプトなので、先頭行のtcshやperl
+を実行環境に合わせて変更してください。perlはperl5が必要です。
+
+あとは、makeでコンパイル、make installでインストールできます。
+
+
+6. 配布条件
+
+配布は自由です。本パッチ(plain2-2.54-html-table.diff)が提供する差分
+と追加分のソース、またはその一部、またはそれを改変したものを含める場
+合は必ず本ドキュメントを改変無しで含んでください。それ以外の制限はあ
+りません。
+
+
+7. 著作権
+
+本パッチ(plain2-2.54-html-table.diff)が提供する差分と追加分に関して、
+作者(小林健一)は著作権を主張しません。
+
+
+8. 免責
+
+本パッチは無保障です。これを使用する際には各自の責任と判断においてお
+使用してください。本パッチや本パッチからの派生物によって生じたいかな
+る損害や不利益に対しても作者は一切の責任を負いません。
+
+
+9. 作者連絡先および配布元
+
+        作者:   小林健一
+        連絡先: mailto:kobayashi-kenichi@my.email.ne.jp
+        配布元: http://www.asahi-net.or.jp/~vw4k-kbys/plain2/

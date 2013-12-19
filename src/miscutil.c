@@ -593,3 +593,220 @@ int	tbType;
 		}
 	}
 }
+
+
+/* KK (KOBAYASHI Kenichi) */
+
+/* 文字列の先頭len文字を取り出す */
+char *
+strTop(char *str, int len)
+{
+	static char buf[MAX_LINE_LEN];
+	
+	if (len > sizeof(buf) - 1) {
+		len = sizeof(buf) - 1;
+	}
+	strncpy(buf, str, len);
+	buf[len] = '\0';
+	return buf;
+}
+
+/*
+  先頭と末尾の空白を削除するstrncpy()。
+  buffer over run対策とnull終端つき
+  コピー時に'\n'は飛ばす。
+*/
+char *
+trimStrncpy(char* buf, int bufsize, char* str, int len)
+{
+	char *p;
+	int i;
+	
+	while (*str == ' ' && len > 0) {
+		str++;
+		len--;
+	}
+	if (len >= bufsize) len = bufsize - 1;
+	for (i = 0; str[i] != '\0' && i < len; i++) {
+		if (str[i] == '\n') {
+			len--;
+			str++;
+			i--;
+			continue;
+		}
+		buf[i] = str[i];
+	}
+	buf[i] = '\0';
+	for (p = buf + len - 1; p >= buf; p--) {
+		if (*p == ' ') {
+			*p = '\0';
+		} else {
+			break;
+		}
+	}
+	return buf;
+}
+
+
+/* 先頭と末尾の空白を削除する。コピー時に'\n'は飛ばす。*/
+char *
+trimStr(char *str)
+{
+	static char buf[MAX_LINE_LEN];
+	
+	return trimStrncpy(buf, sizeof(buf), str, strlen(str));
+}
+
+
+/* 空白/改行で分割された最後の単語を見つける */
+char *
+scanLastWord(char *str)
+{
+	char *word = str;
+	char *p;
+	int in_spaces = 0;
+	
+	for (p = str; *p; p++) {
+		if (*p == ' ' || *p == '\n') {
+			in_spaces = 1;
+		} else {
+			if (in_spaces) {
+				word = p;
+				in_spaces = 0;
+			}
+		}
+	}
+	return word;
+}
+
+
+char*
+createLine(a)
+char	*a;
+{
+	char *p;
+
+	p = malloc(strlen(a) + 1);
+	if (p == NULL) {
+		fprintf(stderr, "PANIC(malloc in createLine)\n");
+		exit (2);
+	}
+	strcpy(p, a);
+	return p;
+}
+
+
+appendLine(ap, b)
+char	**ap;
+char	*b;
+{
+	int len_a = strlen(*ap);
+	int len_b = strlen(b);
+	char *p;
+
+	p = malloc(len_a + len_b + 2);
+	if (p == NULL) {
+		fprintf(stderr, "PANIC(malloc in appendLine)\n");
+		exit (2);
+	}
+	sprintf(p, "%s\n%s", *ap, b);
+	free(*ap);
+	*ap = p;
+}
+
+int
+getNumLines(a)
+char	*a;
+{
+	char* p;
+	int n = 1;
+
+	for (p = a; *p; p++) {
+		n += (*p == '\n');
+	}
+	return n;
+}
+
+
+char*
+getNthLine(a, n)
+char	*a;
+int	n;
+{
+	int i;
+	char *h, *t;
+
+	h = a;
+	for (i = 1; i < n; i++) {
+		h = index(h, '\n');
+		if (h == NULL) return NULL;
+		h++;
+	}
+	t = index(h, '\n');
+	if (t) {
+		return strTop(h, t - h);
+	} else {
+		return strTop(h, strlen(h));
+	}
+}
+
+
+int
+isHankakuAllStr(str)
+char	*str;
+{
+	char *p;
+
+#ifdef KANJI
+	for (p = str; *p; p++) {
+		if (isZenkaku(p)) return 0;
+	}
+#endif
+	return 1;
+}
+
+
+int
+searchStrBreak(str, recommended, limit)
+char	*str;
+int	recommended;
+int	limit;
+{
+	char *p;
+	char *last = str;
+	char *last_sub;
+	int hankaku_f = 0;
+
+#ifdef KANJI
+	last_sub = str;
+	for (p = str; *p && last - str < recommended; p++) {
+		if (p - str >= limit && last != str) break;
+		if (isZenkaku(p)) {
+			if (hankaku_f) {
+				last_sub = p;
+			}
+			hankaku_f = 0;
+			if (strncmp(p, "、", 2) == 0 ||
+			    strncmp(p, "。", 2) == 0 ||
+			    strncmp(p, "，", 2) == 0 ||
+			    strncmp(p, "．", 2) == 0) {
+				last = p + 2;
+			}
+			p++;
+			if (!*p) break;
+		} else {
+			if (!hankaku_f) {
+				last = p;
+			}
+			hankaku_f = 1;
+			if (*p == ' ') {
+				last = p + 1;
+			}
+		}
+	}
+#endif
+	if (last == str) last = last_sub;
+	return last - str;
+}
+
+/* KK end */
