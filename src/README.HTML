@@ -1,0 +1,176 @@
+by k-chinen@is.aist-nara.ac.jp
+
+1.  Prologue
+
+
+This packege is patched HTML support plain2.
+HTML support routines separated by Macro HTML.
+
+        #ifdef HTML
+
+If you found bugs, please send mail k-chinen@is.aist-nara.ac.jp.
+
+
+
+
+2. What is HTML ?
+
+HTML was acronym for Hyper Text Markup Language, which is used in World
+Wide Web.
+World Wide Web is famous service for Mosaic. World Wide Web makes hypertext
+over Network.
+
+
+
+3. How to use ?
+
+3.1. Basic
+
+3.1.1. convert plain text to HTML
+
+
+        % plain2 -html foo.txt > bar.html
+
+plain2 convert foo.txt (plain text) to bar.html (HTML).
+
+
+
+3.1.2. convert plain text to HTML with pictures and tables
+
+use -here option, plain2 made HTML which include pictures and tables. 
+But HTML not support picture and table. plain2 only express anchor for link
+to picture and table
+
+	% plain2 -html -here foo.txt > junk.html
+
+
+3.1.3. convert plain text to HTML with erasing pictures and tables
+
+If you want to erase picture or table, use -htmlonce option (don't use -html).
+
+
+
+3.1.4. convert plain2 text to HTML with raw pictures and tables
+
+If you want to convert plain2 text with raw pictures and tables,
+use -htmlonce and -raw.
+
+
+
+3.2. Extended (plain2html)
+
+3.2.1. require
+
+HTML is not support picture and table, you know. but plain2 generate 
+image and table via roff or TeX.
+Then you need roff or TeX and image processing programs.
+
+For example, this packege include c-shell script which named plain2html.
+This script ganerate HTML and picture and table files.
+(pictures and tables are GIF format file).
+and plain2html require follow programs.
+
+    (1) plain2
+
+    (2) typesetting program
+        - TeX
+                * latex and dvi2ps
+		  ('jlatex' is japanelized latex. please subsitute 
+		   'jlatex' to 'latex' in script)
+        - roff 
+                * groff
+
+    (3) image processing program
+        - convert ( which included ImageMagick)
+        - pnmcrop ( which included pbmplus)
+
+    (4) other
+        - csh or tcsh
+        - awk
+        - ghostscript ( convert calle it)
+        - pt2htcol.awk ( inclued this packege )
+
+3.2.2. How to use
+
+For eample, convert plain text file foo.txt to HTML.
+
+    (1) Make working direcory, because plain2 generate many files.
+
+                % mkdir foo.work
+                % cp foo.txt foo.work
+                % cd foo.work
+
+    (2) run plain2html
+
+               % plain2html foo.txt
+
+	plain2html gerate HTML file foo.html, PIC*.gif (for picture) and 
+	TBL*.gif (for table).
+
+So, you get HTML file.  Please check result via Mosaic or Chimera.
+
+        % Mosaic foo.html
+
+or 
+
+        % chimera foo.html
+
+
+
+4.  Changes for plain2
+
+* add -html option
+
+* add -here option
+  Document size is important in WWW. switch include images or not.
+
+* new make htmlout.c (like texout.c)
+
+* Cannot found pictures begin and end, I modify picture.c
+
+* add plain2html and pt2htcol.awk
+
+        1. Genate HTML with -html
+        2. Convert pictures and tables.
+
+            a) groff
+                - conver to PS via groff
+
+            b) latex
+                - convert to DVI via latex
+                - convert to PS via dvi2ps
+
+        3. cut improtant part in picures and convert to GIF.
+                - convet to PNM via 'convert'
+                - cut via 'pnmcrop'
+                - convet to GIF via 'convert'
+
+
+
+5. Bugs.
+
+* It is multi path
+  plain2 is beauty, because plain2 is one path...
+  but plain2html is multi path.
+
+* I think to hard to install. because it require many programs.
+
+* on groff
+	- groff not support japanaes
+
+
+6. Acknowledgment
+
+Special thank for Mr. Uchida (uchida@ccs.mt.nec.co.jp). he release 
+plain2 r2.5 for this program. And he give important advice and 
+suggestion.
+
+
+7. Epilogue
+
+This packege is only patch for plain2. It is not new revision of plain2.
+Then, If you have questions, advices and requiremnts. please mail 
+k-chinen@is.aist-nara.ac.jp
+
+Own your risk.
+Enjoy !!!

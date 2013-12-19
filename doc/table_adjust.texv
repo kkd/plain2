@@ -1,7 +1,7 @@
 {\list{}{\leftmargin=0.5in}\item[]
 {\baselineskip=10pt
-\jintercharskip=0cm
-\begin{verbatim}
+\par
+\begin{jverbatim}
 % plain2 -tex -nopre table_adjust.pln
 \par
 次のように枠のないテーブルは，
@@ -12,5 +12,5 @@
 明示的に指定する       "[[T"と"]]T"
 そのまま我慢する       多分例示になる
 \endlist}
-\end{verbatim}}
+\end{jverbatim}\par}
 \endlist}

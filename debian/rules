@@ -1,0 +1,107 @@
+#!/usr/bin/make -f
+# MAde with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Cristoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+patch-stamp:
+	patch -p1 < debian/patch/patch-1
+	cd src ; patch -p0 < ../debian/patch/patch-2
+	patch -p1 < debian/patch/patch-5
+	cd src ; patch -p0 < ../debian/patch/patch-6
+	echo "HTML and nide patches are applied" > patch-stamp
+
+depatch:
+	cd src ; patch -p0 -R < ../debian/patch/patch-6
+	patch -p1 -R < debian/patch/patch-5
+	cd src ; patch -p0 -R < ../debian/patch/patch-2
+	patch -p1 -R < debian/patch/patch-1
+	-rm patch-stamp
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	cd src ; $(MAKE) LIBDIR=/usr/lib/plain2
+
+	touch build-stamp
+
+clean: patch-stamp
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp install-stamp
+
+	# Add here commands to clean up after the build process.
+	-cd src ; $(MAKE) clean
+
+	dh_clean
+
+install: install-stamp
+install-stamp: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/tmp.
+	install -s -c -m 755 src/plain2 debian/tmp/usr/bin
+	# HTML (4 lines)
+	install -c -m 755 debian/plain2html debian/tmp/usr/bin
+#	install -c -m 755 src/plain2html debian/tmp/usr/share/doc/plain2/
+#	cd debian/tmp/usr/share/doc/plain2 ; patch -p0 < ../../../../patch/patch-4
+	cp src/pt2htcol.awk debian/tmp/usr/lib/plain2
+	cp debian/README.patch debian/README.nide debian/jverbsty.doc \
+		debian/*.ja src/README.* debian/tmp/usr/share/doc/plain2/ja
+	cp -R debian/patch debian/tmp/usr/share/doc/plain2
+	cp lib/*.p2 debian/tmp/usr/lib/plain2
+	cp -R doc debian/tmp/usr/share/doc/plain2/examples
+#	jverb
+	cp debian/jverb.sty debian/tmp/usr/share/doc/plain2/examples
+	cd debian/tmp/usr/share/doc/plain2/examples ; patch -p0 < ../../../../../../patch/patch-3
+	cd debian/tmp/usr/share/doc/plain2/examples ; sed -e 's/..\/src\/plain2/plain2 -strict/' -e 's/ -p400 / /' -e 's/prtgif+/prtgif/' -e 's/jlatex/platex/g' Makefile > Makefile.new ; mv -f Makefile.new Makefile
+	cd debian/tmp/usr/share/doc/plain2/examples ; patch -p0 < ../../../../../../patch/patch-7
+	cp debian/jmodules debian/tmp/usr/share/doc/plain2/examples/jmodules.obj
+	cd debian/tmp/usr/share/doc/plain2 ; tar cvf examples.tar examples ;\
+	rm -rf examples
+
+#	cd debian/tmp/usr/share/doc/plain2/examples ; sed -e 's/epsf/eclepsf/g' guide.p2 > guide.p2.new ; mv -f guide.p2.new guide.p2
+
+	touch install-stamp
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+#	dh_testversion
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+#	dh_installemacsen
+#	dh_installinit
+#	dh_installcron
+	dh_installmanpages
+	dh_undocumented plain2html.1
+	dh_installchangelogs src/CHANGES
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_suidregister
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+#	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+source diff:                                                                  
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

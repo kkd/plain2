@@ -1,0 +1,197 @@
+題名 plain2 の HTML 対応
+by k-chinen@is.aist-nara.ac.jp
+
+1. はじめに
+
+このディレクトリのソースファイルの中で、
+
+        #ifdef HTML
+
+としてあるのは、オリジナルの plain2 を奈良先端科学技術大学院大学の
+知念 (k-chinen@is.aist-nara.ac.jp) が HTML 対応のため改造したところ
+です。
+その部分でバグが起きたと思われる際には k-chinen@is.aist-nara.ac.jp
+へ E-mail でお知らせください。次のリリースの際の参考にします。
+
+
+
+2. HTML とは ?
+
+HTML とは Hyper Text Markup Language の略で、World Wide Web という
+サービスで文章を作成する為の言語です。World Wide Web は Mosaic と
+いうプログラムで有名な、ネットワーク上にハイパーテキストを作るサー
+ビスです。
+
+
+3. 使い方
+
+3.1. 基本
+
+3.1.1. plain text を HTML に
+
+基本的なオリジナルの plain2 とほとんど同じで、
+
+        % plain2 -html -jis foo.txt > bar.html
+
+というように使います。
+こうすると、foo.txt という plain text を bar.html という HTML の書
+式でかかれたファイルができます。
+
+3.1.2. plain text を図や表が入った HTML に
+
+plain2 に -here オプションをつけると、図や表を直接含めるように書か
+れた HTML の書式のファイルができます。
+(ただし、残念ながら plain2 で図や表を HTML にする事は出来ません。)
+
+        % plain2 -html -here -jis foo.txt > junk.html
+
+として使ってみましょう。
+この junk.html では、 bar.html で "Picture here" とか "Table here"
+と書いてあった場所に何か図が出るとおもいます。
+
+3.1.3. plain text の図や表を無視して HTML に
+
+図や表を無視して HTML にしたい時には、-html ではなく -htmlonce を
+使ってください。
+
+3.1.4. plain text の図や表はそのままで HTML に
+
+図や表をそのまま HTML に含めたい時には、-htmlonce と -raw を一緒
+に使ってください。
+
+
+
+3.2. 応用 (plain2html)
+
+3.2.1. 必要な物
+
+plain2 の HTML を作る機能では図や表は作れませんが、roff や TeX を
+使って図や表を作る事が出来ます。このためには roff や TeX の形式の
+ファイルを gif 等のイメージデータにするプログラムが必要です。
+
+サンプルとして、このパッチでは plain2html という csh script をつ
+けてあります。このスクリプトでは HTML のファイルとそれに必要な図
+や表のためのイメージデータを作ります。
+
+このスクリプトを使うには以下のようなプログラムが必要です。
+
+    (1) plain2
+
+    (2) 組版プログラム
+        - TeX をつかう場合
+                * jlatex と dvi2ps
+        - roff を使う場合
+                * groff
+
+    (3) イメージデータ変換プログラム
+        - convert ( ImageMagick に含まれています )
+        - pnmcrop ( pbmplus に含まれています )
+
+    (4) その他
+        - csh か tcsh
+        - awk
+        - ghostscript ( convert が呼び出します )
+        - pt2htcol.awk ( このパッチに含まれています )
+
+3.2.2. 使い方
+
+foo.txt を HTML のファイルにする例を紹介します。
+
+    (1) 図や表のイメージデータができるので別のディレクトリをつく
+        ってそこで作業しましょう。
+
+                % mkdir foo.work
+                % cp foo.txt foo.work
+                % cd foo.work
+
+    (2) plain2html を実行します
+
+               % plain2html foo.txt
+
+        実行が終了すると(いろいろな処理をするので結構時間かかり
+        ます)、foo.html という HTML の書式できたファイルと、図
+        や表のための PIC*.gif や TBL*.gif できます。
+
+というわけで HTML の書式でできたファイルができます。Mosaic や
+chimera で結果を確認してください。
+
+        % Mosaic foo.html
+
+または、
+
+        % chimera foo.html
+
+としてください。
+
+
+4. 変更点
+
+* -html オプションをつけた。
+  これで、HTML の出力をする。
+
+* -here オプションをつけた。
+  WWW では文書の大きさは重要(64kbps のサイトもある)なので、HTML
+  の中に表や図を
+
+        - そのまま入れる
+        - リンクとする
+
+  に切替える。
+
+* texout.c をまねて、htmlout.c を作った。
+  html で始まる関数を作って HMTL 対応した。
+
+* なぜか、図だけは *out.c の関数で領域(始めと終りの行) を知る事
+  ができないようなので、picture.c の中を変更した。
+
+* スクリプト plain2html , pt2htcol.awk を追加。
+  mulit path として何回も実行して、全体を変換する事にした。
+
+        1. 全体を -html で変換。
+        2. 表や図の部分を ps に変換。
+
+            a) groff
+                - groff で ps に
+
+            b) latex
+                - jlatex で dvi に
+                - dvi2ps で ps に
+
+        3. 表や図の必要な所を切り出して、gif に変換。
+                - convert で pnm に
+                - pnmcrop で切り出す
+                - convert で gif に
+
+           図の切り出しは、TeX では \thispagestyle{empty} を書
+           いたスタイルファイルを用意して解決。
+           groff では -me で解決したようだ。(roff は詳しくない
+           ので自信がない)
+
+
+5. 問題点
+
+* multi path なってしまった。
+  plain2 は one path だから美しいのに...
+
+* いろいろなツールを使うので、install する時は大変かも知れない。
+
+* groff に関して
+        - 日本語が通じない
+
+
+6. 謝辞
+
+plain2 の作者の内田さん(uchida@ccs.mt.nec.co.jp)にはお忙しいのに
+plain2 r2.5 のリリースをしてもらいました。また、いろいろとコメン
+トを頂きました。ありがとうございました。
+
+
+
+7. おわりに
+
+このパッチは plain2 に対するもので、plain2 の新しい revison では
+ありません。したがって、このパッチに関する感想、要望、質問などは
+k-chinen@is.aist-nara.ac.jp 宛でお願いします。
+
+なお、このパッチにによって生じたいかなる損害、利益について作者は
+責任を負いません。

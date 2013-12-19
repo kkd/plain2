@@ -1,0 +1,30 @@
+--- Makefile.orig	Tue Oct 20 15:28:18 1998
++++ Makefile	Tue Oct 20 15:32:29 1998
+@@ -16,7 +16,7 @@
+ #CFLAGS= -fwritable-strings ${DEFINES} -DBSD -DDEBUG
+ 
+ CC=cc
+-CFLAGS= -O ${DEFINES} -DBSD -DDEBUG
++CFLAGS= -O -fwritable-strings ${DEFINES} -DBSD -DDEBUG
+ #CFLAGS=  -g ${DEFINES} -DDEBUG
+ 
+ SRCS=plain2.c readfile.c analyze.c miscutil.c\
+--- plain2.h.orig	Tue Oct 20 15:34:59 1998
++++ plain2.h	Tue Oct 20 15:35:25 1998
+@@ -25,14 +25,14 @@
+ 
+ #define	NEC_CCS			/* NEC C&C Common Software Lab. dependent */
+ 
+-#define	NTT_TEX			/* NTT jlatex	*/
++#undef	NTT_TEX			/* NTT jlatex	*/
+ 
+ #define	TITLE_SPECIAL
+ 
+ #define	PLAIN2_ENV	"PLAIN2_INIT"
+ #define	PLAIN2_LIB	"PLAIN2_LIB"
+ 
+-#define	MACRO_LIB	"/usr/local/lib/plain2"
++#define	MACRO_LIB	"/usr/lib/plain2"
+ 
+ #define	MIN_INDENT	4	/* minimum indentation to be indented region */
+ #define	MIN_SPACING	4	/* minimum number of lines to be space region*/

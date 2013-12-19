@@ -47,7 +47,7 @@ int	which;
 		}
 		hp++;
 	}
-	return NULL;
+	return 0;
 }
 hint(begin, end)
 int	begin;

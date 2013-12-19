@@ -1,4 +1,10 @@
-DOC_BEGIN	"\\documentstyle[epsf]{jarticle}\n\
+DOC_BEGIN	"\
+	\\newif\\ifNTT\\NTTfalse\n\
+	\\ifx\\gtfam\\undefined\\ifx\\gtfamily\\undefined\\NTTtrue\\fi\\fi\n\
+	\\ifNTT\\documentstyle[$2,epsf]{j-article}\n\
+	\\else\\documentstyle[$3,epsf]{jarticle}\\fi\n\
+	\\advance\\textwidth1.4cm \\advance\\oddsidemargin-.7cm\n\
+	\\advance\\textheight2cm \\advance\\topmargin-1cm\n\
 	\\setcounter{secnumdepth}{6}\n\
 	\\setcounter{tocdepth}{6}\n\
 	\\topsep=0.1cm\n\
@@ -15,12 +21,12 @@ DOC_BEGIN	"\\documentstyle[epsf]{jarticle}\n\
 	  \\let\\@mkboth=\\@gobbletwo\n\
 	  \\def\\@evenhead{}\\def\\@evenfoot{}%\n\
 	  \\def\\@oddhead{\\makebox[\\textwidth]%\n\
-	  	{\\ plain2ユーザガイド(r2.5)\\hfill\\thesection\\ 章}}%\n\
+	  	{plain2ユーザガイド(r2.5)\\hfill\\thesection\\ 章}}%\n\
 	  \\def\\@oddfoot{\\makebox[\\textwidth]%\n\
-		{\\rightmark\\leaders\\hbox{\\tiny ~plain2}\\hfill}\\ \\thepage}}\n\
-	\\@ifundefined{jintercharskip}{%\n\
-		\\def\\p2zerointerskip{\\kanjiskip=0cm}}{%\n\
-		\\def\\p2zerointerskip{\\jintercharskip=0cm}}\n\
+		{\\rightmark\\leaders\\hbox{\\tiny ~plain2}\\hfill\\ \\thepage}}}\n\
+	%\\@ifundefined{jintercharskip}{%\n\
+	%	\\def\\p2zerointerskip{\\kanjiskip=0cm}}{%\n\
+	%	\\def\\p2zerointerskip{\\jintercharskip=0cm}}\n\
 	\\makeatother\n"
 SECTION_1	"\n\
 \\section{@1}\

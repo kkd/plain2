@@ -1,0 +1,895 @@
+  奈良女子大学の新出と申します。
+  べた書きテキストをroffやLaTeXの原稿ファイルに変換するソフト「plain2」
+(の最新版、v2.54)に対する、若干のバグ修正&拡張を行うパッチを作りましたの
+で、大したものではありませんが流します。
+  このパッチは公式なものではありません。バグ修正については、オリジナルに
+吸収したい旨(plain2の作者の)内田さんから連絡頂きましたが、機能拡張につい
+てはオリジナルには取り込まれないかも知れません。
+  このパッチには次のような機能があります。
+
+
+[A] ソースのバグ修正
+
+ (1) 一部の関数がauto配列へのポインタを戻り値として返していた。
+ (2) malloc()の戻り値チェックが抜けているところがあった。
+
+
+[B] TeX出力の不具合修正
+
+ (1) TeX出力をコンパイルする際、「Underfill \hbox (badness 10000」の警告
+がたくさん出ていたが、これをできる限り排除した。といっても具体的には、空
+行をあけようとして「\\」を不適切に使っている箇所で、間に「\mbox{}」を挟
+んだだけ。とはいえ、もっと重要なエラーメッセージを見逃すのを防ぐ役には立
+つ(か?)
+
+ (2) TeX出力時に、例示の直前の本文の行間が不当に狭くなることがあったのを
+修正。具体的には、例えば
+
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+	例示 例示
+	例示 例示
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+
+のような文書をplain2 -texで処理すると出力は
+
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+  {\baselineskip=10pt
+  \begin{verbatim}
+        例示 例示
+        例示 例示
+  \end{verbatim}}
+  \par
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+  ここは平文です。ここは平文です。ここは平文です。ここは平文です。
+
+のようになるが、\baselineskip の変更直前に改段落がないため、例示の直前の
+平文の部分まで行間が狭くなってしまっていた。改段落を入れることによってこ
+れを直した。
+
+
+[C] TeX出力に関する機能拡張
+
+ (1) NTT JLaTeX、ASCII日本語LaTeXのどちらにも通用する出力を吐くようにし
+た。これまではコンパイルの段階でどちらかを選ばねばならず、オプションスイッ
+チで切り替えることもできなかった。
+  具体的には、\gtfamあるいは\gtfamilyというマクロが定義されていたらASCII
+日本語LaTeXと見なしてjarticleスタイルを、そうでなければNTT JLaTeXと見な
+してj-articleスタイルを使う(ような出力を吐く)ようにした。また、こうする
+とNTT JLaTeXの場合の\bfコマンドの再定義がいらなくなるのでこれを除去した。
+  (ちなみにこれまでも、実はASCII日本語LaTeX用の出力でNTT JLaTeXにもほぼ
+通っていたのだが、その場合jarticleスタイルを使っていた。今回の修正により
+NTT JLaTeX本来のj-articleを使うようになる)
+
+ (2) (1)に伴い、両方のJLaTeXで通用するような用紙サイズ指定が、plain2の
+-tオプションで簡単に行えるようにした。
+  具体的には、-tstyle= オプションで [ab][45]j? を指定すると、NTT JLaTeX
+の場合jをつけないa4.sty等、ASCII日本語LaTeXの場合jをつけたa4j.sty等を自
+動的に使い分ける。例えば、-tstyle=b4 あるいは -tstyle=b4j のように指定す
+ると、NTT JLaTeXではb4.sty、ASCII日本語LaTeXではb4j.styを使う。
+-tstyle=b4j,12pt のような指定も大丈夫。
+  plain2のデフォルトは用紙指定なしだが、A4用紙を使う指定をTeX出力のデフォ
+ルトにすることもコンパイル時指定で可能。そのためには、src/plain2.hの
+DEFAULT_STYの定義を変更する。
+
+ (3) -jverbオプションを新設した。TeX出力時にこのオプションを使うと、例示
+の部分にjverbatim環境というものを使うようになり、この結果、例示部に日本
+語が混じっていても縦が揃う。デフォルトでは、例示の部分にverbatim環境を使
+うため、日本語が混じると縦が揃わない。
+  但し、jverbatim環境用のstyファイル(jverb.sty)は別途用意しておくことが
+必要。ftp://ftp.vector.co.jp/pack/mac/writing/other/jverb1.03.cpt.bin に
+ある。
+
+
+[D] その他の拡張
+
+ (1) タイトルのパターンで「大学」「学部」などが所属部門を表す文字列として
+認識されるようになった:-) src/title.c参照。
+
+
+  なお、このパッチにはソースの差分の他、docディレクトリ下のmake時の警告
+メッセージを防ぐための差分、およびドキュメントの例示部にjverbatim環境(上
+記[C](3)参照)を使うようにする差分も含まれていますが、ドキュメントの内容
+自体の変更は含まれていません(つまり、パッチを当てても上記[C][D]がドキュ
+メントに反映されない)。また、doc/plain2.psに対する差分も含まれていません
+(つまり、パッチを当ててもdoc/plain2.psは元のままで、パッチ後のdocディレ
+クトリ下をmakeして得られるものと同じにはならない)。ご注意下さい。
+  このパッチについて、私は著作権を主張しません。また、このパッチは無保証
+です。このパッチに関するお問い合わせは私までお願いします(但し99年1月中は
+応答できません)。
+					99/1/2	nide@ics.nara-wu.ac.jp
+
+diff -ur plain2-2.54.orig/doc/Beginning.tex plain2-2.54/doc/Beginning.tex
+--- plain2-2.54.orig/doc/Beginning.tex	Tue Apr 19 18:32:36 1994
++++ plain2-2.54/doc/Beginning.tex	Thu Aug 13 13:03:00 1998
+@@ -9,7 +9,7 @@
+ }
+ \medskip
+ 
+-{\large \dg\bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} ようこそ plain2 の世界へ}
++{\large \bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} ようこそ plain2 の世界へ}
+ \medskip
+ \par
+ TeXなんて書けない，読めない．そんなユーザの声に応える
+@@ -24,10 +24,10 @@
+ \ \ \ \ \ \ \ \ ...\\
+ \%~xdvi~example.dvi\\
+ }
+-\endlist}
++\mbox{}\endlist}
+ \medskip
+ 
+-{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} 多様なリスト}
++{\normalsize \bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} 多様なリスト}
+ \medskip
+ \par
+ いろいろなリストが書けます．ネストもできます．
+@@ -45,12 +45,12 @@
+ \medskip
+ \end{itemize}
+ 
+-{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} テーブルと線画の機能}
++{\normalsize \bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} テーブルと線画の機能}
+ \medskip
+ \par
+ plain2ならテーブルも簡単に書けます
+ ~\\
+-\begin{center}
++\mbox{}\begin{center}
+ \begin{tabular}{|c|c|c|c|}
+ \hline
+            & べた書き & マークアップ & ワープロ\\
+@@ -63,7 +63,7 @@
+ \end{center}
+ \medskip
+ ~\\
+-\begin{center}
++\mbox{}\begin{center}
+ \begin{picture}(288,120)(0,0)
+ \put(3,97){簡単な絵くらいは書けます．}
+ \thinlines
+diff -ur plain2-2.54.orig/doc/Example_adjust2.tex plain2-2.54/doc/Example_adjust2.tex
+--- plain2-2.54.orig/doc/Example_adjust2.tex	Tue Apr 19 18:32:38 1994
++++ plain2-2.54/doc/Example_adjust2.tex	Thu Aug 13 13:03:00 1998
+@@ -19,5 +19,5 @@
+ cc $-$DKANJI $-$DPICTURE $-$DBSD $-$DDEBUG $-$target sun4 $-$c hint.c\\
+ cc $-$DKANJI $-$DPICTURE $-$DBSD $-$DDEBUG $-$target sun4 $-$c justify.c\\
+ cc $-$DKANJI $-$DPICTURE $-$DBSD $-$DDEBUG $-$target sun4 $-$c texout.c\\
+-\endlist}
++\mbox{}\endlist}
+ }\end{minipage}}\\
+diff -ur plain2-2.54.orig/doc/Makefile plain2-2.54/doc/Makefile
+--- plain2-2.54.orig/doc/Makefile	Tue Apr 19 18:32:40 1994
++++ plain2-2.54/doc/Makefile	Thu Aug 13 13:03:00 1998
+@@ -46,7 +46,7 @@
+ 	Example_adjust2.tex
+ 
+ PRTGIF=prtgif+
+-PLAIN2=../src/plain2
++PLAIN2=../src/plain2 -tstyle=a4j -jverb
+ VERBTEXFILES=
+ 
+ plain2.ps: plain2.dvi
+@@ -63,7 +63,10 @@
+ 	rm -f  ${SAMPLES} ${OTHERFILES} plain2.tex plain2.dvi plain2.ps \
+ 	plain2.toc plain2.aux plain2.log
+ 
+-title_a47.tex title_shounin.tex:
++title_a47.tex: title_a47.raw
++	$(PLAIN2) -tex -fexampl_left  $< > $@
++
++title_shounin.tex: title_shounin.raw
+ 	$(PLAIN2) -tex -fexampl_left  $< > $@
+ 
+ table_kanji.tex: table_kanji.pln
+diff -ur plain2-2.54.orig/doc/Tgif_doc.tex plain2-2.54/doc/Tgif_doc.tex
+--- plain2-2.54.orig/doc/Tgif_doc.tex	Tue Apr 19 18:32:42 1994
++++ plain2-2.54/doc/Tgif_doc.tex	Thu Aug 13 13:03:00 1998
+@@ -2,11 +2,11 @@
+ \hspace*{2cm}\framebox[13.5cm][l]{~~\begin{minipage}{12cm}
+ \setcounter{sectionx}{0}{\small\baselineskip=10pt
+ 
+-{\large \dg\bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} tgif+ の利用}
++{\large \bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} tgif+ の利用}
+ \medskip
+ \par
+ tgif+ で書いた絵を次のようにして
+-べた書き文書に取り込みます．\\
++べた書き文書に取り込みます．\\\mbox{}
+ 
+ \medskip
+ 
+diff -ur plain2-2.54.orig/doc/exampl.p2 plain2-2.54/doc/exampl.p2
+--- plain2-2.54.orig/doc/exampl.p2	Tue Apr 19 18:32:48 1994
++++ plain2-2.54/doc/exampl.p2	Thu Aug 13 13:03:00 1998
+@@ -7,6 +7,8 @@
+ 
+ EXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
+ EXAM_END	"}\n",
++JEXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
++JEXAM_END	"}\n",
+ BOLD_BEGIN,	"{\\bf "
+ 
+ SECTION_1	"\n{\\normalsize \\bf\\addtocounter{sectionx}{1}\
+diff -ur plain2-2.54.orig/doc/exampl_star.p2 plain2-2.54/doc/exampl_star.p2
+--- plain2-2.54.orig/doc/exampl_star.p2	Tue Apr 19 18:32:51 1994
++++ plain2-2.54/doc/exampl_star.p2	Thu Aug 13 13:03:00 1998
+@@ -7,6 +7,8 @@
+ 
+ EXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
+ EXAM_END	"}\n",
++JEXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
++JEXAM_END	"}\n",
+ 
+ SECTION_1	"\n\\section*{@1}\n"
+ SECTION_2	"\n\\subsection*{@1}\n"
+diff -ur plain2-2.54.orig/doc/guide.p2 plain2-2.54/doc/guide.p2
+--- plain2-2.54.orig/doc/guide.p2	Tue Apr 19 18:32:57 1994
++++ plain2-2.54/doc/guide.p2	Thu Aug 13 13:03:00 1998
+@@ -1,4 +1,10 @@
+-DOC_BEGIN	"\\documentstyle[epsf]{jarticle}\n\
++DOC_BEGIN	"\
++	\\newif\\ifNTT\\NTTfalse\n\
++	\\ifx\\gtfam\\undefined\\ifx\\gtfamily\\undefined\\NTTtrue\\fi\\fi\n\
++	\\ifNTT\\documentstyle[$2,epsf]{j-article}\n\
++	\\else\\documentstyle[$3,epsf]{jarticle}\\fi\n\
++	\\advance\\textwidth1.4cm \\advance\\oddsidemargin-.7cm\n\
++	\\advance\\textheight2cm \\advance\\topmargin-1cm\n\
+ 	\\setcounter{secnumdepth}{6}\n\
+ 	\\setcounter{tocdepth}{6}\n\
+ 	\\topsep=0.1cm\n\
+@@ -15,12 +21,12 @@
+ 	  \\let\\@mkboth=\\@gobbletwo\n\
+ 	  \\def\\@evenhead{}\\def\\@evenfoot{}%\n\
+ 	  \\def\\@oddhead{\\makebox[\\textwidth]%\n\
+-	  	{\\ plain2ユーザガイド(r2.5)\\hfill\\thesection\\ 章}}%\n\
++	  	{plain2ユーザガイド(r2.5)\\hfill\\thesection\\ 章}}%\n\
+ 	  \\def\\@oddfoot{\\makebox[\\textwidth]%\n\
+-		{\\rightmark\\leaders\\hbox{\\tiny ~plain2}\\hfill}\\ \\thepage}}\n\
+-	\\@ifundefined{jintercharskip}{%\n\
+-		\\def\\p2zerointerskip{\\kanjiskip=0cm}}{%\n\
+-		\\def\\p2zerointerskip{\\jintercharskip=0cm}}\n\
++		{\\rightmark\\leaders\\hbox{\\tiny ~plain2}\\hfill\\ \\thepage}}}\n\
++	%\\@ifundefined{jintercharskip}{%\n\
++	%	\\def\\p2zerointerskip{\\kanjiskip=0cm}}{%\n\
++	%	\\def\\p2zerointerskip{\\jintercharskip=0cm}}\n\
+ 	\\makeatother\n"
+ SECTION_1	"\n\
+ \\section{@1}\
+diff -ur plain2-2.54.orig/doc/plain2.pln plain2-2.54/doc/plain2.pln
+--- plain2-2.54.orig/doc/plain2.pln	Fri Jan  7 18:41:22 1994
++++ plain2-2.54/doc/plain2.pln	Thu Aug 13 13:03:00 1998
+@@ -377,6 +377,7 @@
+ 
+ [[R
+ \input{picture_intro.tex}
++\mbox{} % to avoid `Underfull \hbox (badness 10000)'
+ ]]R
+ 
+ 3. plain2 コマンド
+@@ -2270,7 +2271,7 @@
+ 	"tgif_fig.eps"とします．
+ [[R
+ ~\\
+-\begin{center}
++\mbox{}\begin{center}
+ \epsfile{file=tgif_win.eps}\\
+ \end{center}
+ ]]R
+diff -ur plain2-2.54.orig/doc/pln2raw plain2-2.54/doc/pln2raw
+--- plain2-2.54.orig/doc/pln2raw	Tue Apr 19 18:29:07 1994
++++ plain2-2.54/doc/pln2raw	Thu Aug 13 13:03:00 1998
+@@ -9,22 +9,25 @@
+ LNUM=
+ while getopts n c
+ do
+-	case $c in
++	case "$c" in
+ 	n)	LNUM="on"
+ 		shift
+ 	;;
+ 	esac
+ done
+ 
+-echo '{\list{}{\leftmargin=0.5in}\item[]'
+-echo '{\baselineskip=10pt'
+-echo '\p2zerointerskip'
+-echo '\begin{verbatim}'
++cat <<'EOF'
++{\list{}{\leftmargin=0.5in}\item[]
++{\par\baselineskip=10pt
++\begin{jverbatim}
++EOF
+ if [ "$LNUM" = "on" ] 
+ then
+-	awk '{printf "%3d: %s\n",NR,$0}' $1
++	awk '{printf "%3d: %s\n",NR,$0}' ${1+"$@"}
+ else
+-	cat $1
++	cat ${1+"$@"}
+ fi  | expand
+-echo '\end{verbatim}}'
+-echo '\endlist}'
++cat <<'EOF'
++\end{jverbatim}\par}
++\endlist}
++EOF
+diff -ur plain2-2.54.orig/doc/table_adjust.texv plain2-2.54/doc/table_adjust.texv
+--- plain2-2.54.orig/doc/table_adjust.texv	Tue Apr 19 18:34:02 1994
++++ plain2-2.54/doc/table_adjust.texv	Thu Aug 13 13:03:00 1998
+@@ -1,7 +1,7 @@
+ {\list{}{\leftmargin=0.5in}\item[]
+ {\baselineskip=10pt
+-\jintercharskip=0cm
+-\begin{verbatim}
++\par
++\begin{jverbatim}
+ % plain2 -tex -nopre table_adjust.pln
+ \par
+ 次のように枠のないテーブルは，
+@@ -12,5 +12,5 @@
+ 明示的に指定する       "[[T"と"]]T"
+ そのまま我慢する       多分例示になる
+ \endlist}
+-\end{verbatim}}
++\end{jverbatim}\par}
+ \endlist}
+diff -ur plain2-2.54.orig/lib/jbook.p2 plain2-2.54/lib/jbook.p2
+--- plain2-2.54.orig/lib/jbook.p2	Fri Feb 26 04:40:32 1993
++++ plain2-2.54/lib/jbook.p2	Thu Aug 13 13:03:00 1998
+@@ -3,7 +3,11 @@
+ #
+ # $Id: plain2-2.54.nide-patch,v 1.3 1999/02/10 03:30:26 kohda Exp $
+ #
+-DOC_BEGIN	"\\documentstyle[]{jbook}\n\
++DOC_BEGIN	"\
++\\newif\\ifNTT\\NTTfalse\n\
++\\ifx\\gtfam\\undefined\\ifx\\gtfamily\\undefined\\NTTtrue\\fi\\fi\n\
++\\ifNTT\\documentstyle[$2]{j-book}\n\
++\\else\\documentstyle[$3]{jbook}\\fi\n\
+ \\setcounter{secnumdepth}{6}\n\
+ \\setcounter{tocdepth}{6}\n\
+ \\topsep=0.1cm\n\
+diff -ur plain2-2.54.orig/src/Makefile plain2-2.54/src/Makefile
+--- plain2-2.54.orig/src/Makefile	Tue Apr 19 19:35:38 1994
++++ plain2-2.54/src/Makefile	Thu Aug 13 13:58:00 1998
+@@ -12,11 +12,11 @@
+ 
+ DEFINES=-DKANJI -DPICTURE
+ 
+-#CC=gcc
+-#CFLAGS= -fwritable-strings ${DEFINES} -DBSD -DDEBUG
++CC=gcc
++CFLAGS= -fwritable-strings ${DEFINES} -DBSD -DDEBUG -O2 -s
+ 
+-CC=cc
+-CFLAGS= -O ${DEFINES} -DBSD -DDEBUG
++#CC=cc
++#CFLAGS= -O ${DEFINES} -DBSD -DDEBUG
+ #CFLAGS=  -g ${DEFINES} -DDEBUG
+ 
+ SRCS=plain2.c readfile.c analyze.c miscutil.c\
+diff -ur plain2-2.54.orig/src/headfoot.c plain2-2.54/src/headfoot.c
+--- plain2-2.54.orig/src/headfoot.c	Tue Apr 19 19:16:22 1994
++++ plain2-2.54/src/headfoot.c	Thu Aug 13 13:04:25 1998
+@@ -282,6 +282,8 @@
+ }
+ /*
+  * Build and print Header/Footer string for troff output
++ * (Note: This function returns a pointer to a static buffer which will be
++ *  re-written at next call)
+  */
+ extern struct transTable	roffTransQ[];
+ char	*
+@@ -290,7 +292,7 @@
+ {
+ 	char	left[HF_MAXLEN];
+ 	char	right[HF_MAXLEN];
+-	char	ret[64];
++	static	char	ret[64];
+ 	if (build(pat1, pat2, left, right)) {
+ 		(void)strcpy(ret, codeCvt(textQuote(left, roffTransQ)));
+ 		(void)strcat(ret, "\\\\\\\\nP");
+diff -ur plain2-2.54.orig/src/hint.c plain2-2.54/src/hint.c
+--- plain2-2.54.orig/src/hint.c	Tue Apr 19 19:16:41 1994
++++ plain2-2.54/src/hint.c	Thu Aug 13 13:03:00 1998
+@@ -47,7 +47,7 @@
+ 		}
+ 		hp++;
+ 	}
+-	return NULL;
++	return 0;
+ }
+ hint(begin, end)
+ int	begin;
+diff -ur plain2-2.54.orig/src/macro.c plain2-2.54/src/macro.c
+--- plain2-2.54.orig/src/macro.c	Tue Apr 19 19:16:48 1994
++++ plain2-2.54/src/macro.c	Thu Aug 13 13:03:00 1998
+@@ -15,12 +15,14 @@
+ #define	MACRO_SUFFIX	".p2"
+ 
+ struct	macNames macNames[] = {
+-	"DOC_BEGIN",	M_DOC_BEGIN,	"#$",
++	"DOC_BEGIN",	M_DOC_BEGIN,	"#$$",
+ 	"DOC_END",	M_DOC_END,	"",
+ 	"PLAIN_BEGIN",	M_PLAIN_BEGIN,	"",
+ 	"PLAIN_END",	M_PLAIN_END,	"",
+ 	"EXAM_BEGIN",	M_EXAM_BEGIN,	"#",
+ 	"EXAM_END",	M_EXAM_END,	"",
++	"JEXAM_BEGIN",	M_JEXAM_BEGIN,	"#",
++	"JEXAM_END",	M_JEXAM_END,	"",
+ 	"SET_SEC",	M_SET_SEC,	"#$",
+ 	"APPENDIX",	M_APPENDIX,	"$",
+ 	"APDX_BEGIN",	M_APDX_BEGIN,	"",
+@@ -86,12 +88,18 @@
+ 	struct	cmpMac	*mip, *new_mip;
+ 	int	def_type;
+ 	mip = (struct cmpMac *)malloc(sizeof(struct cmpMac));
++	if(mip == NULL){ /* Add Nide */
++	malloc_error:
++		fprintf(stderr, "PANIC(malloc in macroParse)\n");
++		exit (2);
++	}
+ 	mip->cmac_next = NULL;
+ 	mip->cmac_argnum  = -1;
+ 	mip->cmac_str = s;
+ 	while (*s) {
+ 		if (isdigit(*(s+1)) && (def_type = atype(*s)) != ATYPE_VOID) {
+ 			new_mip=(struct cmpMac *)malloc(sizeof(struct cmpMac));
++			if(new_mip == NULL) goto malloc_error; /* Add Nide */
+ 			mip->cmac_next = new_mip;
+ 			new_mip->cmac_next = NULL;
+ 			new_mip->cmac_argtype = *s;
+@@ -369,8 +377,7 @@
+ 		}
+ 		if (ret == -1)
+ 			continue;
+-		s = (char *)malloc(strlen(defstr));
+-		strcpy(s, defstr);
++		s = strsave(defstr); /* Changed Nide (but don't we need free?)*/
+ 		outMacro[macroNum] = macroParse(s, macroNum, s);
+ 	}
+ 	fclose(fd);
+diff -ur plain2-2.54.orig/src/macro.h plain2-2.54/src/macro.h
+--- plain2-2.54.orig/src/macro.h	Tue Apr 19 19:16:49 1994
++++ plain2-2.54/src/macro.h	Thu Aug 13 13:03:00 1998
+@@ -10,29 +10,31 @@
+ #define	M_PLAIN_END	3
+ #define	M_EXAM_BEGIN	4
+ #define	M_EXAM_END	5
+-#define	M_SET_SEC	6
+-#define	M_APPENDIX	7
+-#define	M_APDX_BEGIN	8
+-#define	M_BLANK		9
+-#define	M_PAGE		10
+-#define	M_NEWLINE	11
+-#define	M_CENTER_BEGIN	12
+-#define	M_CENTER_END	13
+-#define	M_RIGHT_BEGIN	14
+-#define	M_RIGHT_END	15
+-#define	M_INDENT	16
+-#define	M_INDENT0	17
+-#define	M_TITLE		18
+-#define	M_FOOTN_BEGIN	19
+-#define	M_FOOTN_END	20
+-#define	M_REFER_BEGIN	21
+-#define	M_REFER_END	22
+-#define	M_BOLD_BEGIN	23
+-#define	M_BOLD_END	24
+-#define	M_INDEX_BEGIN	25
+-#define	M_INDEX_END	26
+-#define	M_SECTION_END	27
+-#define	M_SECTION_1	28
++#define	M_JEXAM_BEGIN	6	/* Inserted by Nide */
++#define	M_JEXAM_END	7	/* Inserted by Nide */
++#define	M_SET_SEC	8
++#define	M_APPENDIX	9
++#define	M_APDX_BEGIN	10
++#define	M_BLANK		11
++#define	M_PAGE		12
++#define	M_NEWLINE	13
++#define	M_CENTER_BEGIN	14
++#define	M_CENTER_END	15
++#define	M_RIGHT_BEGIN	16
++#define	M_RIGHT_END	17
++#define	M_INDENT	18
++#define	M_INDENT0	19
++#define	M_TITLE		20
++#define	M_FOOTN_BEGIN	21
++#define	M_FOOTN_END	22
++#define	M_REFER_BEGIN	23
++#define	M_REFER_END	24
++#define	M_BOLD_BEGIN	25
++#define	M_BOLD_END	26
++#define	M_INDEX_BEGIN	27
++#define	M_INDEX_END	28
++#define	M_SECTION_END	29
++#define	M_SECTION_1	30
+ #define	M_SECTION_2	(M_SECTION_1 + 1)
+ #define	M_SECTION_3	(M_SECTION_1 + 2)
+ #define	M_SECTION_4	(M_SECTION_1 + 3)
+diff -ur plain2-2.54.orig/src/output.c plain2-2.54/src/output.c
+--- plain2-2.54.orig/src/output.c	Tue Apr 19 19:16:51 1994
++++ plain2-2.54/src/output.c	Thu Aug 13 13:39:31 1998
+@@ -408,12 +408,19 @@
+ 			       + texts[begin]->indent
+ 			       + texts[begin]->headLen, capsule);
+ 		PRINTED(begin);
+-		if (!capsule)
++		if (!capsule){
++			if(texts[begin]->indent && put == &texPut){
++			 /* この場合、texFTitle()の出力が「\\」で終わっており、
++			    次のputIndent()が「\endlist」を出力する直前に
++			    「\mbox{}」を入れてunderfull hboxの警告を抑える */
++				printf("\\mbox{}");
++			}
+ 			putIndent(IND_RESUME, 0);
++		}
+ 		break;
+ 	    case TB_QUOTE:
+ 	    case TB_EXAMPLE:
+-		putMacro(M_EXAM_BEGIN, fontSize);
++		putMacro(useJverb ? M_JEXAM_BEGIN : M_EXAM_BEGIN, fontSize);
+ 		for (i = begin; i < end; i++) {
+ 			PRINTED(i);
+ 			if (texts[i]->blank)
+@@ -421,7 +428,7 @@
+ 			else
+ 				(*put->example)(texts[i]->body + listIndent);
+ 		}
+-		putMacro(M_EXAM_END);
++		putMacro(useJverb ? M_JEXAM_END : M_EXAM_END);
+ 		break;
+ 	    case TB_LISTHD:
+ 		printf("ERROR(List Output%d)%s\n", begin, texts[begin]->body);
+@@ -452,17 +459,40 @@
+ 	    case TB_TABLE:
+ 		{
+ 			int	center;
++			int	indent_amount = 0;
++
+ 			if (!capsule) {
+ 				center = isCenter(begin, end);
+ 				(*put->capsule)(BEGIN, FT_TABLE, center);
+-				if (!center)
+-					putIndent(IND_INDENT,
+-						  texts[begin]->indent / 2);
++				if (!center){
++					indent_amount = 
++					    texts[begin]->indent / 2;
++
++					if(!crossRefer && put == &texPut &&
++					   indent_amount){
++					 /* この場合、texCapsule()の出力が
++					    「\\」で終わっており、次の
++					    putIndent()が「{\list{}…」を出力
++					    する直前に「\mbox{}」を入れて
++					    underfull hboxの警告を抑える */
++					  	printf("\\mbox{}");
++					}
++					putIndent(IND_INDENT, indent_amount);
++				}
+ 			}
+ 			tblOutput(begin, end);
+ 			if (!capsule) {
+-				if (!center)
++				if (!center){
++					if(put == &texPut && indent_amount){
++					 /* この場合、直前のputIndent()の出力
++					    が「\\」で終わっており、次の
++					    putIndent()が「\endlist」を出力
++					    する直前に「\mbox{}」を入れて
++					    underfull hboxの警告を抑える */
++					  	printf("\\mbox{}");
++					}
+ 					putIndent(IND_RESUME, 0);
++				}
+ 				(*put->capsule)(END, FT_TABLE, center);
+ 			}
+ 		}
+diff -ur plain2-2.54.orig/src/plain2.c plain2-2.54/src/plain2.c
+--- plain2-2.54.orig/src/plain2.c	Tue Apr 19 19:40:29 1994
++++ plain2-2.54/src/plain2.c	Thu Aug 13 13:46:37 1998
+@@ -27,8 +27,9 @@
+   ----- experimental ----		 -raw:      quote special chars(off)\n\
+ -pt=Size:  font size			 -jis:      JIS code output\n\
+  					 -sjis:     Shift-JIS code input/output\n\
++					 -jverb:    use jverbatim\n\
+  					 -f file:   output customization\n"
+-#define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation"
++#define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation\n(unofficial patch 98/08/13 by N.Nide)"
+ 
+ extern	char	*getenv();
+ extern char	*optarg;
+@@ -66,8 +67,9 @@
+ int verbose	    =  0;
+ char *plain2Lib	    = NULL;
+ char *macroName	    = NULL;
+-char *texStyle	    = NULL;
++char *texStyle	    = DEFAULT_STY; /* Nide */
+ struct outDev *put  = &roffPut;
++int useJverb	    =  0; /* Nide */
+ 
+ FILE	*inFile;
+ struct text	 **texts;
+@@ -112,6 +114,7 @@
+ 		(void)fprintf(stderr, "%s\n", VERSION);
+ 		exit (2);
+ 	}
++	if (put != &texPut) useJverb = 0;
+ 	if (macroName)
+ 		macroFile(macroName);
+ 	saveParseDefaults();
+@@ -146,6 +149,46 @@
+ 		putMacro(M_DOC_END);
+ 	exit(0);
+ }
++
++ /* "a4j,12pt" -> "a4,12pt" etc. Return value can be free'ed afterward */
++char	*styleConv(s, nttflag)
++char	*s;
++int	nttflag;
++{
++	char	*buf, *p;
++	int	sty_appeared = 0;
++
++	if(NULL == (p = buf = malloc(strlen(s)*3/2+6+1))){ /* 6 for ",jverb" */
++		fprintf(stderr, "PANIC(malloc in styleConv)\n");
++		exit(2);
++	}
++	while(*s){
++		while(isspace(*s)) *p++ = *s++;
++		if(*s) sty_appeared = 1;
++		if((*s == 'a' || *s == 'b') && (s[1] == '4' || s[1] == '5')){
++			if(nttflag){
++				if(s[2] == 'j' && (!s[3] || s[3] == ',')){
++					strncpy(p, s, 2), p += 2, s += 3;
++				}
++			} else {
++				if(!s[2] || s[2] == ','){
++					strncpy(p, s, 2), p += 2, s += 2;
++					*p++ = 'j';
++				}
++			}
++		}
++		while(*s) if(',' == (*p++ = *s++)) break;
++	}
++	if(useJverb){
++		if(sty_appeared) *p++ = ',';
++		strcpy(p, "jverb"), p += 5;
++	}
++	*p = '\0';
++	return buf;
++}
++#define nttSty(s)   styleConv(s, 1)
++#define asciiSty(s) styleConv(s, 0)
++
+ /*
+  * Do parse & output
+  */
+@@ -179,10 +222,10 @@
+ 			}
+ 		}
+ 		if (preamble) {
+-			if (texStyle)
+-				putMacro(M_DOC_BEGIN, (long)fontSize, texStyle);
+-			else
+-				putMacro(M_DOC_BEGIN, (long)fontSize, "");
++			char	*p = nttSty(texStyle), *q = asciiSty(texStyle);
++
++			putMacro(M_DOC_BEGIN, (long)fontSize, p, q);
++			free(p), free(q);
+ 		}
+ 	}
+ 
+@@ -285,6 +328,13 @@
+ 			}
+ 			else
+ #endif
++		    /* Add Nide (need jverb,sty to use this option) */
++			if (strcmp(optarg, "verb") == 0) {
++				OUTPUT_OPTION("-jverb");
++				useJverb = 1;
++			}
++			else
++		    /* Add Nide end */	  
+ 				goto usage;
+ 			break;
+ 		    case 'l':
+diff -ur plain2-2.54.orig/src/plain2.h plain2-2.54/src/plain2.h
+--- plain2-2.54.orig/src/plain2.h	Tue Apr 19 19:16:57 1994
++++ plain2-2.54/src/plain2.h	Thu Aug 13 13:03:00 1998
+@@ -19,9 +19,9 @@
+  *		2.4: 28/04/92
+  *		2.5: 06/08/93
+  */
+-#define	NEC_CCS			/* NEC C&C Common Software Lab. dependent */
++/* #define	NEC_CCS		/* NEC C&C Common Software Lab. dependent */
+ 
+-#define	NTT_TEX			/* NTT jlatex	*/
++/* #define	NTT_TEX		/* NTT jlatex	*/ /* no longer needed */
+ 
+ #define	TITLE_SPECIAL
+ 
+@@ -30,6 +30,9 @@
+ 
+ #define	MACRO_LIB	"/usr/local/lib/plain2"
+ 
++#define DEFAULT_STY	""	/* default style in TeX output */
++/*#define DEFAULT_STY	"a4" */
++
+ #define	MIN_INDENT	4	/* minimum indentation to be indented region */
+ #define	MIN_SPACING	4	/* minimum number of lines to be space region*/
+ #define	MAX_DSCRLEN	40	/* maximum length for description list	*/
+@@ -206,6 +209,7 @@
+ extern int indexEnabled;		/* Enables Indexing		*/
+ extern int fontSize;			/* font size			*/
+ extern int fontSpecified;		/* font size specified		*/
++extern int useJverb;			/* use jverbatim (Nide)		*/
+ /*	*/
+ extern FILE *inFile;			/* intput File			*/
+ extern struct text	**texts;	/* texts[lineNum] array of text
+@@ -268,6 +272,8 @@
+ int	markAsPlain();
+ int	markIfQuote();
+ int	markIfTable();
++struct	picLineElm	*picLineMatch();
++struct	picMiscLines	*picMiscMatch();
+ 
+ /*
+  * Output driver
+diff -ur plain2-2.54.orig/src/readfile.c plain2-2.54/src/readfile.c
+--- plain2-2.54.orig/src/readfile.c	Tue Apr 19 19:17:00 1994
++++ plain2-2.54/src/readfile.c	Thu Aug 13 13:03:00 1998
+@@ -201,6 +201,7 @@
+ 	while (fgets(buf, MAX_LINE_LEN, inFile) != NULL) {
+ 		textp->next   = (struct text *)malloc(sizeof(struct text));
+ 		if (textp->next == NULL){
++		malloc_error:
+ 			fprintf(stderr, "PANIC(malloc in readAndStore)\n");
+ 			exit (2);
+ 		}
+@@ -222,8 +223,10 @@
+ 	 */
+ 	texts = (struct text **)
+ 		malloc(sizeof(struct text *) * (textLines + 1));
++	if(texts == NULL) goto malloc_error; /* Add Nide */
+ 	for (textp = textTop, i=1; i < textLines; textp = textp->next, i++)
+ 		texts[i] = textp;
+ 	texts[textLines] = (struct text *)malloc(sizeof(struct text));
++	if(texts[textLines] == NULL) goto malloc_error; /* Add Nide */
+ 	bzero((char *)texts[textLines], sizeof(struct text));
+ }
+diff -ur plain2-2.54.orig/src/roffout.c plain2-2.54/src/roffout.c
+--- plain2-2.54.orig/src/roffout.c	Tue Apr 19 19:17:03 1994
++++ plain2-2.54/src/roffout.c	Thu Aug 13 13:06:32 1998
+@@ -19,6 +19,10 @@
+ 	M_PLAIN_END,	"",
+ 	M_EXAM_BEGIN,	".ft CW\n.vs -2\n.nf\n",
+ 	M_EXAM_END,	".fi\n.vs +2\n.ft\n",
++	M_JEXAM_BEGIN,	"",
++	M_JEXAM_END,	"",  /* These two are not actually used, because when
++				roff output is selected, the flag useJverb
++				is always 0 */
+ 	M_APPENDIX,	"\\fBAppendix $1\\fP\n",
+ 	M_BLANK,	"\n",
+ 	M_PAGE,		".bp\n",
+diff -ur plain2-2.54.orig/src/table.c plain2-2.54/src/table.c
+--- plain2-2.54.orig/src/table.c	Tue Apr 19 19:17:06 1994
++++ plain2-2.54/src/table.c	Thu Aug 13 13:03:00 1998
+@@ -464,7 +464,7 @@
+ 				if (colVline[col] == COLV_ASC
+ 				    && tblAsciAttr[(unsigned char)*s] == 0
+ 				    && tblKanjiByte[(unsigned char)*s]
+-				    && tblKwakuAttr(s) == NULL)
++				    && tblKwakuAttr(s) == 0)
+ 					nilg++;
+ #ifdef	KANJI
+ 				if (isZenkaku(s)) {
+diff -ur plain2-2.54.orig/src/texout.c plain2-2.54/src/texout.c
+--- plain2-2.54.orig/src/texout.c	Tue Apr 19 19:17:09 1994
++++ plain2-2.54/src/texout.c	Thu Aug 13 13:56:18 1998
+@@ -12,32 +12,30 @@
+ #include "table.h"
+ #include "macro.h"
+ 
+-#ifdef	NTT_TEX
+-#define	STR_DOC_BEGIN	"\\documentstyle[$2]{jarticle}\n\
++#define	STR_DOC_BEGIN	"\
++\\newif\\ifNTT\\NTTfalse\n\
++\\ifx\\gtfam\\undefined\\ifx\\gtfamily\\undefined\\NTTtrue\\fi\\fi\n\
++\\ifNTT\\documentstyle[$2]{j-article}\n\
++\\else\\documentstyle[$3]{jarticle}\\fi\n\
+ \\setcounter{secnumdepth}{6}\n\
+ \\setcounter{tocdepth}{6}\n\
+ \\topsep=0.1cm\n\
+ \\parsep=0.1cm\n\
+ \\itemsep=0.0cm\n\
+-\\renewcommand{\\bf}{\\protect\\pbf\\protect\\pdg}\n\
++%\\renewcommand{\\bf}{\\protect\\pbf\\protect\\pdg}\n\
+ \\begin{document}\n"
+-#else	/* ASCII_TEX */
+-#define	STR_DOC_BEGIN	"\\documentstyle[$2]{jarticle}\n\
+-\\setcounter{secnumdepth}{6}\n\
+-\\setcounter{tocdepth}{6}\n\
+-\\topsep=0.1cm\n\
+-\\parsep=0.1cm\n\
+-\\itemsep=0.0cm\n\
+-\\begin{document}\n"
+-#endif
+ 
+ struct	macDefs texMacros[] = {
+ 	M_DOC_BEGIN,	STR_DOC_BEGIN,
+ 	M_DOC_END,	"\\end{document}\n",
+ 	M_PLAIN_BEGIN,	"\\par\n",
+ 	M_PLAIN_END,	"",
+-	M_EXAM_BEGIN,	"{\\baselineskip=#1pt\n\\begin{verbatim}\n",
++	M_EXAM_BEGIN,	"{\\par\\baselineskip=#1pt\n\\begin{verbatim}\n",
++	 /* 直前の行間まで狭まってしまうのを防ぐため\parを置いた */
+ 	M_EXAM_END,	"\\end{verbatim}}\n",
++	M_JEXAM_BEGIN,	"{\\par\\baselineskip=#1pt\n\\begin{jverbatim}\n",
++	M_JEXAM_END,	"\\end{jverbatim}\\par}\n",
++	 /* jverbatimの前後には\par必要。jverb.styのドキュメント参照 */
+ 	M_APDX_BEGIN,	"\\appendix\n",
+ 	M_APPENDIX,	"\\section{@1}\n",
+ 	M_BLANK,	"\\medskip\n",
+@@ -180,8 +178,9 @@
+ 	s = buf;
+ 	while(*str) {
+ 		if (len = alpha(str)) {
+-			(void)strcpy(s, "\\verb|");
+-			s += strlen("\\verb|");
++			char	*p = useJverb ? "\\jverb|" : "\\verb|";
++			(void)strcpy(s, p);
++			s += strlen(p);
+ 			(void)strncpy(s, str, len);
+ 			s += len;
+ 			str += len;
+@@ -805,7 +804,9 @@
+ 		if (begin) {
+ 			printf("~\\\\\n");
+ 			if (center) {
+-				printf("\\begin{center}\n");
++			 /* 「\begin{center}」の直前が「\\」となるため
++			    「\mbox{}」を入れてunderfill hboxの警告を抑える */
++				printf("\\mbox{}\\begin{center}\n");
+ 			}
+ 		}
+ 		else {
+diff -ur plain2-2.54.orig/src/title.c plain2-2.54/src/title.c
+--- plain2-2.54.orig/src/title.c	Tue Apr 19 19:17:10 1994
++++ plain2-2.54/src/title.c	Thu Aug 13 13:03:00 1998
+@@ -101,6 +101,12 @@
+ 	"事業部",	TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
+ 	"研究所",	TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
+ 	"研究部",	TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
++/* Add Nide */
++	"大学",		TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
++	"学部",		TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
++	"学科",		TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
++	"研究室",	TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
++/* Add Nide end */
+ 	"文書番号",	TENT_NUMBER,	S_FROMRIGHT,	0,	W_ANYWHERE,
+ 	"日付",		TENT_DATE,	S_FROMRIGHT,	0,	W_ANYWHERE,
+ 	"月",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+@@ -132,6 +138,18 @@
+ 	"/97",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+ 	"/98",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
+ 	"/99",		TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++/* Add Nide */
++	"2000/",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"2001/",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"2002/",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"2003/",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"2004/",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"/2000",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"/2001",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"/2002",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"/2003",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++	"/2004",	TENT_DATE,	S_ALL,		0,	W_ANYWHERE,
++/* Add Nide end */
+ #ifdef	NEC_CCS
+ 	"開本",		TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,
+ 	"開研",		TENT_SHOZOKU,	S_ALL,		0,	W_ANYWHERE,

@@ -1,0 +1,29 @@
+== Old README (until 2.54p1-1) ==
+
+0. In TeX format, we set ASCII TeX. (#undef NTT_TEX in src/plain2.h)
+
+1. See examples directory for usage. It may be useful to do
+	"make plain2.dvi"
+   Remark: We make some modifications and supply eclepsf.sty for this to work.
+
+2. We apply the patch so that plain2 can convert into HTML.
+   But the patch is for plain2-2.53 so we slightly modify it.
+
+3. We modify plain2html script so that it works better in Debian.
+   We thanks to Debian JP members whose advices make this possible. 
+
+----------------------
+
+0. TeX の場合はアスキー日本語 TeX です。(#undef NTT_TEX in src/plain2.h)
+
+1. examples ディレクトリにドキュメントがあります。適当な作業用のディレクトリ
+   にコピーして以下のようにすると良いかもわかりません。
+	"make plain2.dvi"
+   (注意。このために少し修正と eclepsf.sty の用意を行なっています。)
+
+2. HTML に変換できるパッチを当てています。元のパッチは plain2-2.53
+   用だったので少し修正してあります。
+
+3. スクリプト plain2html は Debian 用にかなり修正してあります。
+   この修正は Debian JP のメンバーの方々のご助言によるものです。
+

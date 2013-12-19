@@ -1,0 +1,83 @@
+diff -ur doc.orig/Beginning.tex doc/Beginning.tex
+--- doc.orig/Beginning.tex	Mon May 11 14:25:37 1998
++++ doc/Beginning.tex	Mon May 11 12:44:43 1998
+@@ -9,7 +9,7 @@
+ }
+ \medskip
+ 
+-{\large \dg\bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} ようこそ plain2 の世界へ}
++{\large \bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} ようこそ plain2 の世界へ}
+ \medskip
+ \par
+ TeXなんて書けない，読めない．そんなユーザの声に応える
+@@ -27,7 +27,7 @@
+ \endlist}
+ \medskip
+ 
+-{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} 多様なリスト}
++{\normalsize \bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} 多様なリスト}
+ \medskip
+ \par
+ いろいろなリストが書けます．ネストもできます．
+@@ -45,7 +45,7 @@
+ \medskip
+ \end{itemize}
+ 
+-{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} テーブルと線画の機能}
++{\normalsize \bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} テーブルと線画の機能}
+ \medskip
+ \par
+ plain2ならテーブルも簡単に書けます
+diff -ur doc.orig/Makefile doc/Makefile
+--- doc.orig/Makefile	Mon May 11 14:25:37 1998
++++ doc/Makefile	Mon May 11 14:26:18 1998
+@@ -45,7 +45,7 @@
+ RAWTEXFILES=Tgif_doc.tex Beginning.tex Hint_all.tex \
+ 	Example_adjust2.tex
+ 
+-PRTGIF=prtgif+
++PRTGIF=prtgif
+ PLAIN2=../src/plain2
+ VERBTEXFILES=
+ 
+@@ -53,8 +53,8 @@
+ 	dvi2ps -p400 plain2.dvi > $@
+ 
+ plain2.dvi: ${SAMPLES} ${RAWTEXFILES} ${OTHERFILES} plain2.tex
+-	jlatex plain2.tex
+-	jlatex plain2.tex
++	ajlatex plain2.tex
++	ajlatex plain2.tex
+ 
+ plain2.tex: plain2.pln guide.p2
+ 	$(PLAIN2) -tex -ref -fguide plain2.pln > plain2.tex
+@@ -63,7 +63,7 @@
+ 	rm -f  ${SAMPLES} ${OTHERFILES} plain2.tex plain2.dvi plain2.ps \
+ 	plain2.toc plain2.aux plain2.log
+ 
+-title_a47.tex title_shounin.tex:
++title_a47.tex title_shounin.tex: title_a47.pln
+ 	$(PLAIN2) -tex -fexampl_left  $< > $@
+ 
+ table_kanji.tex: table_kanji.pln
+diff -ur doc.orig/Tgif_doc.tex doc/Tgif_doc.tex
+--- doc.orig/Tgif_doc.tex	Mon May 11 14:25:37 1998
++++ doc/Tgif_doc.tex	Mon May 11 12:42:36 1998
+@@ -2,7 +2,7 @@
+ \hspace*{2cm}\framebox[13.5cm][l]{~~\begin{minipage}{12cm}
+ \setcounter{sectionx}{0}{\small\baselineskip=10pt
+ 
+-{\large \dg\bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} tgif+ の利用}
++{\large \bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} tgif+ の利用}
+ \medskip
+ \par
+ tgif+ で書いた絵を次のようにして
+diff -ur doc.orig/guide.p2 doc/guide.p2
+--- doc.orig/guide.p2	Mon May 11 14:25:37 1998
++++ doc/guide.p2	Mon May 11 13:06:36 1998
+@@ -1,4 +1,4 @@
+-DOC_BEGIN	"\\documentstyle[epsf]{jarticle}\n\
++DOC_BEGIN	"\\documentstyle[a4j,eclepsf]{jarticle}\n\
+ 	\\setcounter{secnumdepth}{6}\n\
+ 	\\setcounter{tocdepth}{6}\n\
+ 	\\topsep=0.1cm\n\

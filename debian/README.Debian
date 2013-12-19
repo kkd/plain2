@@ -1,0 +1,30 @@
+plain2 for DEBIAN
+----------------------
+
+1. By the new extension patch of Mr. Nide, plain2 can now output for both
+   ASCII and NTT japanese LaTeX. cf. README.nide
+   We apply a patch which can pass option "a4j" to NTT japanese LaTeX when
+   use with "-strict" option.
+   (The option "-strict" does not mean really strict, but only set a4j instead
+   of a4 for NTT LaTeX also.)
+
+2. We apply HTML patch of Mr. Chinen but the patch is for plain2-2.53
+   so we slightly modify it. cf. README.HTML(.JPN.gz)
+
+3. Remark that two pathes at the same time may cause some troubles.
+
+4. examples.tar.gz contains manuals in Japanese. It may be useful to 
+   copy it to somewhere your working directory and do
+   'tar zxvf examples.tar.gz' and do not forget to remove examplex.tar.gz
+   Then in examples directory do 'make plain2.dvi'.
+   We use platex(ASCII japanese LaTeX) by default but if you want to use other
+   japanese LaTeX such as jlatex(NTT japanese LaTeX), please edit lines
+   56 and 57 of Makefile like "jlatex plain2.tex".
+
+   It is necessary to copy jverb.sty to somewhere in /usr/lib/texmf/tex/
+   if you want to use "-jverb" option generally. cf. jverbsty.doc
+
+5. We modify plain2html script so that it works better in Debian.
+   We thanks to Debian JP members whose advices make this possible. 
+
+Yasuhiro Take <take@debian.or.jp>, Sat, 25 Mar 2000 20:51:00 +0900

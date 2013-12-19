@@ -1,0 +1,70 @@
+This package was debianized by Yasuhiro Take <take@debian.or.jp> on
+Sat, 25 Mar 2000 20:52:00 +0900.
+
+It was downloaded from;
+ftp://ftp.tohoku.ac.jp/pub/TeX/misc/plain2/plain2-2.54.tar.gz
+
+Upstream Author(s): Akihiro Uchida <uchida@ccs.mt.nec.co.jp>
+
+Copyright:
+
+The original copyright is written in Japanese and you can find it
+/usr/share/doc/plain2/ja/distrib.ja but for your convenience I translate
+it to English.  Note the following translation is only for reference
+and you should read the original one.
+
+1. plain2 is provided "AS IS" and any express or implied warranties are
+disclaimed. In no event shall the author and the organization the author
+belongs to, be liable for any damages arising in any way out of the use 
+of plain2.
+
+2. You can redistribute plain2 freely provided you retain this copyright.
+
+3. You can modify plain2 and use it freely. But you can not distribute
+the modified version without the permission of the author. You must contact
+the author.
+
+You can contact the author at <uchida@ccs.mt.nec.co.jp> when you report 
+the bug and/or the modification.
+
+NOTE: The condition 3. contradicts with DFSG, but Mr. Uchida, the author,
+kindly modifys the condition 3. to DFSG 4. and now
+
+3. You can distribute the modified version only if the distribution of 
+"patch files" with the source code for the purpose of modifying the program
+at build time. You must make derived works a different name or version number
+from the original program.
+
+-------------------------------------
+About the patch:
+
+plain2-2.53-html.94aug14.patch was downloaded from:
+http://shika.aist-nara.ac.jp/products/DEST/plain2/plain2-2.53-html.94aug14.patch.gz
+
+plain2-2.53-html.94aug14.patch is written by Mr. Chinen
+<k-chinen@is.aist-nara.ac.jp>
+and shares the copyright of the original.
+
+--------------------
+plain2-2.54.nide-patch is written by nide@ics.nara-wu.ac.jp and was gotten:
+ From: nide@ics.nara-wu.ac.jp
+ Newsgroups: fj.sources
+ Subject: plain2 unofficial patch...
+ Date: 3 Jan 1999 07:22:58 GMT
+ Message-ID: <76n5si$i0g$1@narans.cc.nara-wu.ac.jp>
+
+--------------------
+About jverb.sty:
+
+It was downloaded from
+ftp://ftp.vector.co.jp/pack/mac/writing/other/jverb1.04.cpt.bin
+and is written by <pxk12131@niftyserve.or.jp> and <96492406@people.or.jp> 
+
+It is stated as follows:
+
+%jverb.sty v1.04
+%
+%		 by 21M	   e-mail: pxk12131@niftyserve.or.jp
+%	Modified by Yamane e-mail: 96492406@people.or.jp
+%
+% This file is in the public domain.

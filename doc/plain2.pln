@@ -377,6 +377,7 @@ JISの罫線素片文字を使って書いた絵を，troffのPICまたはLaTeXのpicture環境の
 
 [[R
 \input{picture_intro.tex}
+\mbox{} % to avoid `Underfull \hbox (badness 10000)'
 ]]R
 
 3. plain2 コマンド
@@ -2270,7 +2271,7 @@ tgif+ で書いた絵を文書中に取り込む方法を説明します．
 	"tgif_fig.eps"とします．
 [[R
 ~\\
-\begin{center}
+\mbox{}\begin{center}
 \epsfile{file=tgif_win.eps}\\
 \end{center}
 ]]R

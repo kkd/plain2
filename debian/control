@@ -1,0 +1,15 @@
+Source: plain2
+Section: text
+Priority: optional
+Maintainer: Yasuhiro Take <take@debian.or.jp>
+Build-Depends: debhelper (>> 3.0.0)
+Standards-Version: 3.5.2
+
+Package: plain2
+Architecture: any
+Depends: ${shlibs:Depends}
+Suggests: ptex-bin | jtex-bin, groff
+Description: Converts plain text into roff, TeX or HTML format.
+ In TeX format, this converts into ASCII or NTT TeX format. 
+ HTML format is not in original but by a patch and NTT TeX format is also
+ not in original but by another patch.

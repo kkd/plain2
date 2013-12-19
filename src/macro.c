@@ -15,12 +15,14 @@ static char rcsid[] =
 #define	MACRO_SUFFIX	".p2"
 
 struct	macNames macNames[] = {
-	"DOC_BEGIN",	M_DOC_BEGIN,	"#$",
+	"DOC_BEGIN",	M_DOC_BEGIN,	"#$$",
 	"DOC_END",	M_DOC_END,	"",
 	"PLAIN_BEGIN",	M_PLAIN_BEGIN,	"",
 	"PLAIN_END",	M_PLAIN_END,	"",
 	"EXAM_BEGIN",	M_EXAM_BEGIN,	"#",
 	"EXAM_END",	M_EXAM_END,	"",
+	"JEXAM_BEGIN",	M_JEXAM_BEGIN,	"#",
+	"JEXAM_END",	M_JEXAM_END,	"",
 	"SET_SEC",	M_SET_SEC,	"#$",
 	"APPENDIX",	M_APPENDIX,	"$",
 	"APDX_BEGIN",	M_APDX_BEGIN,	"",
@@ -86,12 +88,18 @@ char	*orig;
 	struct	cmpMac	*mip, *new_mip;
 	int	def_type;
 	mip = (struct cmpMac *)malloc(sizeof(struct cmpMac));
+	if(mip == NULL){ /* Add Nide */
+	malloc_error:
+		fprintf(stderr, "PANIC(malloc in macroParse)\n");
+		exit (2);
+	}
 	mip->cmac_next = NULL;
 	mip->cmac_argnum  = -1;
 	mip->cmac_str = s;
 	while (*s) {
 		if (isdigit(*(s+1)) && (def_type = atype(*s)) != ATYPE_VOID) {
 			new_mip=(struct cmpMac *)malloc(sizeof(struct cmpMac));
+			if(new_mip == NULL) goto malloc_error; /* Add Nide */
 			mip->cmac_next = new_mip;
 			new_mip->cmac_next = NULL;
 			new_mip->cmac_argtype = *s;
@@ -369,8 +377,7 @@ char	*fname;
 		}
 		if (ret == -1)
 			continue;
-		s = (char *)malloc(strlen(defstr));
-		strcpy(s, defstr);
+		s = strsave(defstr); /* Changed Nide (but don't we need free?)*/
 		outMacro[macroNum] = macroParse(s, macroNum, s);
 	}
 	fclose(fd);

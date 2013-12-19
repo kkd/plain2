@@ -464,7 +464,7 @@ register struct	table	*tblp;
 				if (colVline[col] == COLV_ASC
 				    && tblAsciAttr[(unsigned char)*s] == 0
 				    && tblKanjiByte[(unsigned char)*s]
-				    && tblKwakuAttr(s) == NULL)
+				    && tblKwakuAttr(s) == 0)
 					nilg++;
 #ifdef	KANJI
 				if (isZenkaku(s)) {

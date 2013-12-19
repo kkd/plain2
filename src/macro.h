@@ -10,29 +10,31 @@
 #define	M_PLAIN_END	3
 #define	M_EXAM_BEGIN	4
 #define	M_EXAM_END	5
-#define	M_SET_SEC	6
-#define	M_APPENDIX	7
-#define	M_APDX_BEGIN	8
-#define	M_BLANK		9
-#define	M_PAGE		10
-#define	M_NEWLINE	11
-#define	M_CENTER_BEGIN	12
-#define	M_CENTER_END	13
-#define	M_RIGHT_BEGIN	14
-#define	M_RIGHT_END	15
-#define	M_INDENT	16
-#define	M_INDENT0	17
-#define	M_TITLE		18
-#define	M_FOOTN_BEGIN	19
-#define	M_FOOTN_END	20
-#define	M_REFER_BEGIN	21
-#define	M_REFER_END	22
-#define	M_BOLD_BEGIN	23
-#define	M_BOLD_END	24
-#define	M_INDEX_BEGIN	25
-#define	M_INDEX_END	26
-#define	M_SECTION_END	27
-#define	M_SECTION_1	28
+#define	M_JEXAM_BEGIN	6	/* Inserted by Nide */
+#define	M_JEXAM_END	7	/* Inserted by Nide */
+#define	M_SET_SEC	8
+#define	M_APPENDIX	9
+#define	M_APDX_BEGIN	10
+#define	M_BLANK		11
+#define	M_PAGE		12
+#define	M_NEWLINE	13
+#define	M_CENTER_BEGIN	14
+#define	M_CENTER_END	15
+#define	M_RIGHT_BEGIN	16
+#define	M_RIGHT_END	17
+#define	M_INDENT	18
+#define	M_INDENT0	19
+#define	M_TITLE		20
+#define	M_FOOTN_BEGIN	21
+#define	M_FOOTN_END	22
+#define	M_REFER_BEGIN	23
+#define	M_REFER_END	24
+#define	M_BOLD_BEGIN	25
+#define	M_BOLD_END	26
+#define	M_INDEX_BEGIN	27
+#define	M_INDEX_END	28
+#define	M_SECTION_END	29
+#define	M_SECTION_1	30
 #define	M_SECTION_2	(M_SECTION_1 + 1)
 #define	M_SECTION_3	(M_SECTION_1 + 2)
 #define	M_SECTION_4	(M_SECTION_1 + 3)

@@ -19,6 +19,10 @@ struct	macDefs roffMacros[] = {
 	M_PLAIN_END,	"",
 	M_EXAM_BEGIN,	".ft CW\n.vs -2\n.nf\n",
 	M_EXAM_END,	".fi\n.vs +2\n.ft\n",
+	M_JEXAM_BEGIN,	"",
+	M_JEXAM_END,	"",  /* These two are not actually used, because when
+				roff output is selected, the flag useJverb
+				is always 0 */
 	M_APPENDIX,	"\\fBAppendix $1\\fP\n",
 	M_BLANK,	"\n",
 	M_PAGE,		".bp\n",

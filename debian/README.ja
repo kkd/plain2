@@ -1,0 +1,24 @@
+
+1. 新しい新出さんの機能拡張のパッチにより日本語 LaTeX の場合 ASCII 版でも
+   NTT 版でも使えます。README.nide 参照。
+   NTT 版で a4.sty より a4j.sty が使いたいときのために -strict オプション
+   を指定できるようにパッチを作って当てています。
+   (ただし -strict オプションは単に NTT LaTeX に対しても a4 でなく a4j を
+   指定できるだけで、本当の意味で strict ではありません。)
+
+2. HTML に変換できる知念さんのパッチを当てていますが HTML のパッチは
+   plain2-2.53用だったので少し修正してあります。README.HTML(.JPN.gz) 参照。
+
+3. また二つのパッチは同時に当てられる保障はありませんので不具合があるかも
+   わかりません。
+
+4. examples.tar.gz  がドキュメントを含んでいます。適当な作業用のディレクトリ
+   で展開して "make plain2.dvi" してみてください。
+   デフォルトでは platex が使われますがもし他の jlatex などを使いたい場合は
+   Makefile の 56, 57 行目を jlatex plain2.tex のように修正してください。
+
+   もし -jverb オプションを使う予定なら jverb.sty は /usr/lib/texmf/tex/ の
+   適当なディレクトリにコピーしてください。jverbsty.doc 参照。
+
+5. スクリプト plain2html は Debian 用にかなり修正してあります。
+   この修正は Debian JP のメンバーの方々のご助言によるものです。

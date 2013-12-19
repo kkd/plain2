@@ -12,32 +12,30 @@ static char rcsid[] =
 #include "table.h"
 #include "macro.h"
 
-#ifdef	NTT_TEX
-#define	STR_DOC_BEGIN	"\\documentstyle[$2]{jarticle}\n\
+#define	STR_DOC_BEGIN	"\
+\\newif\\ifNTT\\NTTfalse\n\
+\\ifx\\gtfam\\undefined\\ifx\\gtfamily\\undefined\\NTTtrue\\fi\\fi\n\
+\\ifNTT\\documentstyle[$2]{j-article}\n\
+\\else\\documentstyle[$3]{jarticle}\\fi\n\
 \\setcounter{secnumdepth}{6}\n\
 \\setcounter{tocdepth}{6}\n\
 \\topsep=0.1cm\n\
 \\parsep=0.1cm\n\
 \\itemsep=0.0cm\n\
-\\renewcommand{\\bf}{\\protect\\pbf\\protect\\pdg}\n\
+%\\renewcommand{\\bf}{\\protect\\pbf\\protect\\pdg}\n\
 \\begin{document}\n"
-#else	/* ASCII_TEX */
-#define	STR_DOC_BEGIN	"\\documentstyle[$2]{jarticle}\n\
-\\setcounter{secnumdepth}{6}\n\
-\\setcounter{tocdepth}{6}\n\
-\\topsep=0.1cm\n\
-\\parsep=0.1cm\n\
-\\itemsep=0.0cm\n\
-\\begin{document}\n"
-#endif
 
 struct	macDefs texMacros[] = {
 	M_DOC_BEGIN,	STR_DOC_BEGIN,
 	M_DOC_END,	"\\end{document}\n",
 	M_PLAIN_BEGIN,	"\\par\n",
 	M_PLAIN_END,	"",
-	M_EXAM_BEGIN,	"{\\baselineskip=#1pt\n\\begin{verbatim}\n",
+	M_EXAM_BEGIN,	"{\\par\\baselineskip=#1pt\n\\begin{verbatim}\n",
+	 /* 直前の行間まで狭まってしまうのを防ぐため\parを置いた */
 	M_EXAM_END,	"\\end{verbatim}}\n",
+	M_JEXAM_BEGIN,	"{\\par\\baselineskip=#1pt\n\\begin{jverbatim}\n",
+	M_JEXAM_END,	"\\end{jverbatim}\\par}\n",
+	 /* jverbatimの前後には\par必要。jverb.styのドキュメント参照 */
 	M_APDX_BEGIN,	"\\appendix\n",
 	M_APPENDIX,	"\\section{@1}\n",
 	M_BLANK,	"\\medskip\n",
@@ -180,8 +178,9 @@ int	quotable;
 	s = buf;
 	while(*str) {
 		if (len = alpha(str)) {
-			(void)strcpy(s, "\\verb|");
-			s += strlen("\\verb|");
+			char	*p = useJverb ? "\\jverb|" : "\\verb|";
+			(void)strcpy(s, p);
+			s += strlen(p);
 			(void)strncpy(s, str, len);
 			s += len;
 			str += len;
@@ -805,7 +804,9 @@ int	center;
 		if (begin) {
 			printf("~\\\\\n");
 			if (center) {
-				printf("\\begin{center}\n");
+			 /* 「\begin{center}」の直前が「\\」となるため
+			    「\mbox{}」を入れてunderfill hboxの警告を抑える */
+				printf("\\mbox{}\\begin{center}\n");
 			}
 		}
 		else {

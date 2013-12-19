@@ -1,0 +1,159 @@
+#!/usr/local/bin/tcsh 
+#
+# plain2html:	plain text to HTML file
+#		by k-chinen@is.aist-nara.ac.jp , 1994
+#
+# NOTE:
+# 	* This script will be running under csh or tcsh.
+# 	* Handle with care for directory, because this script make
+#	  a lot of temporary file and output file.
+#
+
+
+#
+# require:
+#
+#    program:
+#	csh or tcsh
+#	plain2 ( have -html option verison )
+#	awk
+#	groff ( gtbl, gpic )
+#	latex or jlatex
+#	dvi2ps
+#	convert ( convertable PS to Any-format version )
+#	pnmcrop ( included PBMPLUS )
+#	ghostscript ( called by convert when convert PS format )
+#
+#    script:
+#	pt2htcol.awk ( included this packeage )
+#
+#
+# input:
+#	$1 (plain text file name.  e.g., README.j)
+#
+# output:
+#	$1:r.html  (e.g., README.html)
+#
+# temporary file:
+#	_src, _cut.sh , _out.html , pt2empty.sty, _tmp.pnm
+#	TBL*.p TBL*.ps TBL*.src TBL*.tex TBL*.dvi TBL*.pnm
+#	PIC*.p PIC*.ps PIC*.src PIC*.tex PIC*.dvi PIC*.pnm
+#				
+
+
+#
+# Default values
+#
+set tex=1
+set roff=0
+set lib=/usr/local/lib/plain2
+
+
+#
+# Check args.
+#
+if ( $#argv > 0 ) then
+	switch ($1)
+	case -tex:
+		set tex=1
+		set roff=0
+		shift
+		breaksw
+	case -roff:
+		set tex=0
+		set roff=1
+		shift
+		breaksw
+	default:
+		breaksw
+	endsw
+endif
+
+if ( $#argv > 0 ) then
+	set target=$1
+else
+	cat << END_USAGE
+plain2html: plain text to HTML file
+	by k-chinen@is.aist-nara.ac.jp NAIST , 1994
+
+usage: plain2html [option] input-filename
+
+option:		-tex	TeX mode (use latex, dvi2ps) [defauts]
+		-roff	roff mode (use groff)
+
+END_USAGE
+	exit
+endif
+
+
+
+#
+# Start
+#	convert document's main body.
+#	collect table/picture location and cut these.
+#
+
+echo "Copy Target $target ."
+cp $target _src
+
+echo "Process document main body"
+plain2 -html -jis -here _src > _out.html
+
+echo "Collect Table/Picutre"
+awk -f $lib/pt2htcol.awk _out.html > _cut.sh
+
+
+
+#
+# Convert parts(table/picture) via LaTeX
+#	If you don't have jlatex substitute to "latex".
+#	( jlatex is Japanese LaTeX )
+# 
+if ( $tex ) then
+cat << END_STYLEFILE > pt2empty.sty
+\\thispagestyle{empty}
+\\pagestyle{empty}
+END_STYLEFILE
+cat << END_TEX_CUT >> _cut.sh
+foreach i ( TBL*.p PIC*.p ) 
+	echo "Part \$i process"
+        plain2 -tex -jis -tstyle=pt2empty \$i > \$i:r.tex
+        jlatex \$i:r.tex
+        dvi2ps \$i:r.dvi > \$i:r.ps
+	convert -density 144x144 \$i:r.ps \$i:r.pnm
+	pnmcrop -white \$i:r.pnm > _tmp.pnm
+	convert _tmp.pnm \$i:r.gif
+	rm -f \$i:r.ps \$i:r.dvi \$i:r.aux \$i:r.log \$i:r.tex \$i:r.p \$i:r.pnm
+end
+END_TEX_CUT
+endif
+
+#
+# Convert parts(table/picture) via GROFF
+#	If you don't have gorff substitute to ROFF-like program.
+#
+if ( $roff ) then
+cat << END_ROFF_CUT >> _cut.sh
+foreach i ( TBL*.p PIC*.p ) 
+	echo "Part \$i process"
+	plain2 -roff -euc  \$i > \$i:r.src
+	groff -me -t -p \$i:r.src > \$i:r.ps
+	convert -density 144x144 \$i:r.ps \$i:r.pnm
+	pnmcrop -white \$i:r.pnm > _tmp.pnm
+	convert _tmp.pnm \$i:r.gif
+	rm -f \$i:r.ps \$i:r.src \$i:r.p \$i:r.pnm
+end
+END_ROFF_CUT
+endif
+
+#
+# Run parts conversion script
+#
+echo "Cut Table/Picture"
+$shell _cut.sh
+
+rm -f $target:r.html
+mv _out.html $target:r.html
+rm -f _cut.sh pt2empty.sty _src _tmp.pnm
+
+echo "Complete"

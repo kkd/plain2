@@ -10,23 +10,23 @@ LIBDIR=/usr/local/lib/plain2
 
 SHELL=/bin/sh
 
-DEFINES=-DKANJI -DPICTURE
+DEFINES=-DKANJI -DPICTURE -DHTML
 
-#CC=gcc
-#CFLAGS= -fwritable-strings ${DEFINES} -DBSD -DDEBUG
+CC=gcc
+CFLAGS= -fwritable-strings ${DEFINES} -DBSD -DDEBUG -O2 -s
 
-CC=cc
-CFLAGS= -O ${DEFINES} -DBSD -DDEBUG
+#CC=cc
+#CFLAGS= -O -fwritable-strings ${DEFINES} -DBSD -DDEBUG
 #CFLAGS=  -g ${DEFINES} -DDEBUG
 
 SRCS=plain2.c readfile.c analyze.c miscutil.c\
 	section.c example.c list.c plaintxt.c table.c spacing.c\
 	headfoot.c hint.c picture.c justify.c ftitle.c\
-	roffout.c texout.c title.c output.c renumout.c macro.c
+	roffout.c texout.c title.c output.c renumout.c macro.c htmlout.c
 OBJS_NOKANJI=plain2.o readfile.o miscutil.o\
 	section.o example.o list.o plaintxt.o spacing.o\
 	headfoot.o hint.o justify.o\
-	texout.o output.o renumout.o macro.o
+	texout.o output.o renumout.o macro.o htmlout.o
 #
 # Following files contain Kanji characters(8bit) in EUC code.
 #
@@ -96,3 +96,4 @@ title.o: plain2.h
 output.o: plain2.h picture.h macro.h
 renumout.o: plain2.h
 macro.o: plain2.h macro.h
+htmlout.o: plain2.h macro.h

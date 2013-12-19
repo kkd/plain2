@@ -201,6 +201,7 @@ readAndStoreFile()
 	while (fgets(buf, MAX_LINE_LEN, inFile) != NULL) {
 		textp->next   = (struct text *)malloc(sizeof(struct text));
 		if (textp->next == NULL){
+		malloc_error:
 			fprintf(stderr, "PANIC(malloc in readAndStore)\n");
 			exit (2);
 		}
@@ -222,8 +223,10 @@ readAndStoreFile()
 	 */
 	texts = (struct text **)
 		malloc(sizeof(struct text *) * (textLines + 1));
+	if(texts == NULL) goto malloc_error; /* Add Nide */
 	for (textp = textTop, i=1; i < textLines; textp = textp->next, i++)
 		texts[i] = textp;
 	texts[textLines] = (struct text *)malloc(sizeof(struct text));
+	if(texts[textLines] == NULL) goto malloc_error; /* Add Nide */
 	bzero((char *)texts[textLines], sizeof(struct text));
 }

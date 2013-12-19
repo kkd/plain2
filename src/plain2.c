@@ -1,9 +1,13 @@
 /*
  * Copyright (C) 1991,1992,1994 NEC Corporation.
  */
+/*
+ * modify by k-chinen@is.aist-nara.ac.jp, 1994
+ */
+
 #ifndef	lint
-static char rcsid[] =
-	"$Id: plain2.c,v 2.29 1994/04/19 10:40:29 uchida Exp $ (NEC)";
+
+
 #endif
 
 #include <stdio.h>
@@ -12,6 +16,30 @@ static char rcsid[] =
 #include "plain2.h"
 #include "macro.h"
 
+#ifdef HTML
+#define	PLAIN2_USAGE_1	"\
+usage: plain2 [options] [files ...]\n\n\
+  ---- parser options ----		   ---- output options ----(default)\n\
+-table=dd: table factor	 [0-100](def=50) -roff:	    troff output\n\
+-exam=dd:  example factor[0-100](def=50) -ms/-mm:   troff macro	       (mm)\n\
+-indsec:   sections can be indented      -tex:      tex output\n\
+-ktable:enable JIS keisen table		 -tstyle=ss:tex style\n\
+-ref:	   figure/picture reference	 -html:     HTML output\n\
+					 -htmlonce: HTML (one path) output\n\
+					 -here:	    HTML table/picture ref.\n\
+					 -renum:    renumbering only\n\
+ 					 -[no]listd:list decoration    (on)\n\
+  ---- Others ----			 -[no]space:spacing            (on)\n\
+-v:	   verbose output		 -[no]pre:  preamble block     (on)\n\
+-dLevel:   debug level			 -[no]acursec: section numbers (off)\n\
+  ----- experimental ----		 -raw:      quote special chars(off)\n\
+-pt=Size:  font size			 -jis:      JIS code output\n\
+ 					 -sjis:     Shift-JIS code input/output\n\
+ 					 -f file:   output customization\n\n"
+#define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation\n\
+\t(HTML output) by k-chinen@is.aist-nara.ac.jp, NAIST\n\
+\t(unofficial patch 98/08/13 by N.Nide)"
+#else
 #define	PLAIN2_USAGE_1	"\
 usage: plain2 [options] [files ...]\n\
   ---- parser options ----		   ---- output options ----(default)\n\
@@ -28,13 +56,19 @@ usage: plain2 [options] [files ...]\n\
 -pt=Size:  font size			 -jis:      JIS code output\n\
  					 -sjis:     Shift-JIS code input/output\n\
  					 -f file:   output customization\n"
-#define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation"
+#define	VERSION	"plain2 r2.54 1994/04 by A.Uchida NEC Corporation\n\
+\t(HTML output) by k-chinen@is.aist-nara.ac.jp, NAIST"
+#endif
 
-extern	char	*getenv();
+extern char	*getenv();
 extern char	*optarg;
 extern int	optind;
 extern struct macDefs	roffMacros[], roffMsMacros[];
 extern struct macDefs	texMacros[];
+#ifdef HTML
+extern struct macDefs   htmlMacros[];
+#endif
+
 /*
  * Default parameters for Parsing
  */
@@ -64,10 +98,15 @@ int texQuote	    =  0;
 int fontSize	    = 10;
 int fontSpecified   =  0;
 int verbose	    =  0;
+#ifdef HTML
+int htmlOnce        =  0;
+int htmlHere        =  0;
+#endif
 char *plain2Lib	    = NULL;
 char *macroName	    = NULL;
-char *texStyle	    = NULL;
+char *texStyle	    = DEFAULT_STY; /* Nide */
 struct outDev *put  = &roffPut;
+int useJverb	    =  0; /* Nide */
 
 FILE	*inFile;
 struct text	 **texts;
@@ -88,6 +127,8 @@ int	debug;
 #ifdef	__TURBOC__
 extern unsigned _stklen = 32768U;
 #endif
+
+int stflag = 1;
 
 main(argc, argv)
 int	 argc;
@@ -112,6 +153,7 @@ char	 **argv;
 		(void)fprintf(stderr, "%s\n", VERSION);
 		exit (2);
 	}
+	if (put != &texPut) useJverb = 0;
 	if (macroName)
 		macroFile(macroName);
 	saveParseDefaults();
@@ -146,6 +188,46 @@ char	 **argv;
 		putMacro(M_DOC_END);
 	exit(0);
 }
+
+ /* "a4j,12pt" -> "a4,12pt" etc. Return value can be free'ed afterward */
+char	*styleConv(s, nttflag)
+char	*s;
+int	nttflag;
+{
+	char	*buf, *p;
+	int	sty_appeared = 0;
+
+	if(NULL == (p = buf = malloc(strlen(s)*3/2+6+1))){ /* 6 for ",jverb" */
+		fprintf(stderr, "PANIC(malloc in styleConv)\n");
+		exit(2);
+	}
+	while(*s){
+		while(isspace(*s)) *p++ = *s++;
+		if(*s) sty_appeared = 1;
+		if((*s == 'a' || *s == 'b') && (s[1] == '4' || s[1] == '5')){
+			if(nttflag){
+				if(s[2] == 'j' && (!s[3] || s[3] == ',')){
+					strncpy(p, s, 2), p += 2, s += 3;
+				}
+			} else {
+				if(!s[2] || s[2] == ','){
+					strncpy(p, s, 2), p += 2, s += 2;
+					*p++ = 'j';
+				}
+			}
+		}
+		while(*s) if(',' == (*p++ = *s++)) break;
+	}
+	if(useJverb){
+		if(sty_appeared) *p++ = ',';
+		strcpy(p, "jverb"), p += 5;
+	}
+	*p = '\0';
+	return buf;
+}
+#define nttSty(s)   styleConv(s, 1)
+#define asciiSty(s) styleConv(s, 0)
+
 /*
  * Do parse & output
  */
@@ -163,14 +245,26 @@ doPlain2()
 
 	if (firstTime) {
 		firstTime = 0;
+#ifdef HTML
+		if (put == &htmlPut) {
+			initMacroDefs(htmlMacros);
+			/* sorry, nothing is change this "if" */
+			if (halfCooked) {
+				htmlSetTrans(0);
+			}
+			else {
+				htmlSetTrans(1);
+			}
+		}
+                else
+#endif
 		if (put == &roffPut) {
 			if (roffMacro == MS_MACRO)
 				initMacroDefs(roffMsMacros);
 			initMacroDefs(roffMacros);
 		}
-		else if (put == &texPut)
+		else if (put == &texPut) {
 			initMacroDefs(texMacros);
-		if (put == &texPut) {
 			if (halfCooked) {
 				texSetTrans(0);
 			}
@@ -179,10 +273,18 @@ doPlain2()
 			}
 		}
 		if (preamble) {
-			if (texStyle)
-				putMacro(M_DOC_BEGIN, (long)fontSize, texStyle);
-			else
-				putMacro(M_DOC_BEGIN, (long)fontSize, "");
+		  if (stflag)  {
+			char	*p = nttSty(texStyle), *q = asciiSty(texStyle);
+
+			putMacro(M_DOC_BEGIN, (long)fontSize, p, q);
+			free(p), free(q);
+		  }
+		  else {
+			char *p = asciiSty(texStyle), *q = asciiSty(texStyle);
+
+			putMacro(M_DOC_BEGIN, (long)fontSize, p, q);
+			free(p), free(q);
+		  }
 		}
 	}
 
@@ -285,6 +387,13 @@ char	**xargv;
 			}
 			else
 #endif
+		    /* Add Nide (need jverb,sty to use this option) */
+			if (strcmp(optarg, "verb") == 0) {
+				OUTPUT_OPTION("-jverb");
+				useJverb = 1;
+			}
+			else
+		    /* Add Nide end */	  
 				goto usage;
 			break;
 		    case 'l':
@@ -300,11 +409,16 @@ char	**xargv;
 				outputCode = CODE_SJIS;
 				inputCode  = CODE_SJIS;
 			}
-			else
+			else if (strcmp(optarg, "trict") == 0) {
+					stflag = 0;
+			}
 #endif
 				if (strcmp(optarg, "pace") == 0) {
 					OUTPUT_OPTION("-space");
 					reflectSpace = 1;
+				}
+				else if (strcmp(optarg, "trict") == 0) {
+					stflag = 0;
 				}
 				else goto usage;
 			break;
@@ -407,6 +521,22 @@ char	**xargv;
 				OUTPUT_OPTION("-alfraw");
 				halfCooked = 1;
 			}
+#ifdef HTML
+			else if (strcmp(optarg, "tmlonce") == 0) {
+				OUTPUT_OPTION("-htmlonce");
+				htmlOnce = 1;
+				put = &htmlPut;
+			}
+			else if (strcmp(optarg, "tml") == 0) {
+				OUTPUT_OPTION("-html");
+				htmlOnce = 0;
+				put = &htmlPut;
+			}
+			else if (strcmp(optarg, "ere") == 0) {
+				OUTPUT_OPTION("-here");
+				htmlHere = 1;
+			}
+#endif
 			else	goto usage;
 			break;
 		    case 't':

@@ -1,0 +1,28 @@
+--- Makefile.orig	Fri Oct  1 10:41:06 1999
++++ Makefile	Fri Oct  1 10:40:44 1999
+@@ -40,12 +40,12 @@
+         title_shounin.tex header_text.raw ftitle_illeg.raw ftitle_illeg.tex\
+ 	help_message.raw
+ 
+-OTHERFILES=tgif_fig.eps tgif_win.eps logo.eps modules.eps help_message
++OTHERFILES=tgif_fig.eps tgif_win.eps logo.eps jmodules.eps help_message
+ 
+ RAWTEXFILES=Tgif_doc.tex Beginning.tex Hint_all.tex \
+ 	Example_adjust2.tex
+ 
+-PRTGIF=prtgif
++PRTGIF=tgif -print
+ PLAIN2=plain2 -strict -tstyle=a4j -jverb
+ VERBTEXFILES=
+ 
+--- plain2.pln.orig	Fri Oct  1 11:11:19 1999
++++ plain2.pln	Fri Oct  1 11:11:38 1999
+@@ -1845,7 +1845,7 @@
+ 
+ [[R
+ ~\\
+-\epsfbox{modules.eps}\\
++\epsfbox{jmodules.eps}\\
+ ]]R
+ 
+ 6.1. LaTeX½ÐÎÏ

@@ -7,6 +7,8 @@ TITLE	  	"{\\center{\\large &2~}\\\\\n\
 
 EXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
 EXAM_END	"}\n",
+JEXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
+JEXAM_END	"}\n",
 BOLD_BEGIN,	"{\\bf "
 
 SECTION_1	"\n{\\normalsize \\bf\\addtocounter{sectionx}{1}\

@@ -282,6 +282,8 @@ int	fpos;
 }
 /*
  * Build and print Header/Footer string for troff output
+ * (Note: This function returns a pointer to a static buffer which will be
+ *  re-written at next call)
  */
 extern struct transTable	roffTransQ[];
 char	*
@@ -290,7 +292,7 @@ char	*pat1, *pat2;
 {
 	char	left[HF_MAXLEN];
 	char	right[HF_MAXLEN];
-	char	ret[64];
+	static	char	ret[64];
 	if (build(pat1, pat2, left, right)) {
 		(void)strcpy(ret, codeCvt(textQuote(left, roffTransQ)));
 		(void)strcat(ret, "\\\\\\\\nP");

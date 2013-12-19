@@ -1,0 +1,55 @@
+パッチについて：全ての適用したパッチは patch ディレクトリにあります。
+
+plain2-2.53-html.94aug14.patch:
+ オリジナルの HTML パッチです。このままでは使っていません。(参照 patch-1)
+ From http://shika.aist-nara.ac.jp/products/plain2/
+ By Mr. Chinen<k-chinen@is.aist-nara.ac.jp>
+
+plain2-2.54.nide-patch:
+ 機能拡張パッチです。Debian 用に修正した patch-5 を適用しています。
+ From: nide@ics.nara-wu.ac.jp
+ Newsgroups: fj.sources
+ Subject: plain2 unofficial patch...
+ Date: 3 Jan 1999 07:22:58 GMT
+ Message-ID: <76n5si$i0g$1@narans.cc.nara-wu.ac.jp>
+
+patch-1:
+ HTML 対応パッチ plain2-2.53-html.94aug14.patch は plain2-2.53 用なので
+ plain2-2.54 には当たりませんでした。それを修正したものです。
+
+patch-2:
+ Debian のシステムに合うようにするパッチです。
+
+patch-3:
+ examples にあるドキュメントを Debian で make できるように
+ 修正するパッチです。(epsf.sty に対応)
+ これはソースには変更しないことに注意してください。
+ その後の修正は rules で sed などで行なっています。
+
+patch-4:
+ オリジナルの plain2html を Debian の環境に合わせるパッチです。
+ ただし bash にして Debian 用に改良したものがインストールされていますから
+ 現在は使っていません。
+
+patch-5:
+ plain2-2.54.nide-patch を HTML パッチを当ててあるソースに適用するため
+ 必要な修正をしたものです。
+
+patch-6:
+ NTT 版のとき a4.sty にされるのが不都合なときに a4j.sty を使えるように
+ -strict オプションを追加しました。
+
+patch-7:
+ Potato の tgif(4.1.18-1) には prtgif がなく tgif -print になっていること
+ と modules.obj が古い tgif のものらしく、そのままでは処理できないので新しい
+ tgif で作りなおした jmodules.obj を使うようにする patch です。
+
+パッケージに修正を行なう場合
+ debian/rules の depatch でほぼオリジナルの状態に戻せます。
+ そのための修正が patch-0 ですが rules では設定していません。
+ そして rules の patch-stamp を適当にコメントアウトして修正すれば他のパッチを
+ 当てたりできます。
+
+--------------------------
+平成１０年１０月２１日(水)
+kohda@pm.tokushima-u.ac.jp

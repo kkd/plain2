@@ -1,0 +1,53 @@
+diff -ur plain2-2.54p1.orig/src/output.c plain2-2/src/output.c
+--- plain2-2.54p1.orig/src/output.c	Tue Apr 19 19:16:51 1994
++++ plain2-2/src/output.c	Wed Feb 10 10:42:23 1999
+@@ -2,8 +2,8 @@
+  * Copyright (C) 1991,1992,1993 NEC Corporation.
+  */
+ #ifndef lint
+-static char rcsid[] =
+-	"$Id: patch-0,v 1.2 1999/02/10 03:30:26 kohda Exp $ (NEC)";
++
++
+ #endif
+ 
+ #include <stdio.h>
+diff -ur plain2-2.54p1.orig/src/picture.c plain2-2/src/picture.c
+--- plain2-2.54p1.orig/src/picture.c	Tue Apr 19 19:16:53 1994
++++ plain2-2/src/picture.c	Wed Feb 10 10:42:23 1999
+@@ -2,8 +2,8 @@
+  * Copyright (C) 1991,1992 NEC Corporation.
+  */
+ #ifndef lint
+-static char rcsid[]=
+-	"$Id: patch-0,v 1.2 1999/02/10 03:30:26 kohda Exp $ (NEC)";
++
++
+ #endif
+ 
+ #ifdef	PICTURE
+diff -ur plain2-2.54p1.orig/src/plain2.c plain2-2/src/plain2.c
+--- plain2-2.54p1.orig/src/plain2.c	Tue Apr 19 19:40:29 1994
++++ plain2-2/src/plain2.c	Wed Feb 10 10:42:23 1999
+@@ -2,8 +2,8 @@
+  * Copyright (C) 1991,1992,1994 NEC Corporation.
+  */
+ #ifndef	lint
+-static char rcsid[] =
+-	"$Id: patch-0,v 1.2 1999/02/10 03:30:26 kohda Exp $ (NEC)";
++
++
+ #endif
+ 
+ #include <stdio.h>
+--- plain2-1/lib/jbook.p2.orig	Wed Feb 10 12:13:36 1999
++++ plain2-1/lib/jbook.p2	Wed Feb 10 12:13:51 1999
+@@ -1,7 +1,7 @@
+ #
+ # jbookスタイルを使う
+ #
+-# $Id: patch-0,v 1.2 1999/02/10 03:30:26 kohda Exp $
++# 
+ #
+ DOC_BEGIN	"\\documentstyle[]{jbook}\n\
+ \\setcounter{secnumdepth}{6}\n\

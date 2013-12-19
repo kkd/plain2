@@ -1,0 +1,90 @@
+plain2 (2.54p1-4.1) unstable; urgency=low
+
+  * NMU.
+  * Added Build-Depends.
+  * Fixed obsolete Suggests.
+  * Bumped up to Standards-Version: 3.5.2.
+
+ -- Masayuki Hatta <mhatta@debian.org>  Thu,  4 Oct 2001 09:52:42 +0900
+
+plain2 (2.54p1-4) unstable; urgency=low
+
+  * New Maintainer.
+  * Update to Version: 3.0.1
+
+ -- Yasuhiro Take <take@debian.or.jp>  Sat, 25 Mar 2000 21:00:32 +0900
+
+plain2 (2.54p1-3.3) unstable; urgency=low
+
+  * Change examples to examples.tar.gz for disk space.
+  * Rearrange and update documents a bit and provide a brief english copyright.
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Fri, 19 Nov 1999 17:31:22 +0900
+
+plain2 (2.54p1-3.2) unstable; urgency=low
+
+  * Upgrade jverb.sty from v1.04 to v1.06
+  * Move /usr/doc/ to /usr/share/doc/ as per the FHS
+    also /usr/man to /usr/share/man
+  * Fix some files in example directory so that new tgif can work for them.
+    Especially we add jmodules.obj in place of original modules.obj
+	
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Thu, 30 Sep 1999 16:55:08 +0900
+
+plain2 (2.54p1-3.1) unstable; urgency=low
+
+  * Fix depending on non-free packages, platex | ptex-jtex, and now suggest
+    these.
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Mon, 12 Apr 1999 12:37:45 +0900
+
+plain2 (2.54p1-3) unstable; urgency=low
+
+  * Apply patch of nide@ics.nara-wu.ac.jp
+  * Include jverb.sty
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Sat,  6 Feb 1999 08:49:29 +0900
+
+plain2 (2.54p1-2) frozen-jp unstable-jp; urgency=low
+
+  * Remove eclepsf.sty whose copyright may conflict with DFSG.
+  * Adopt CVS
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Sat,  6 Feb 1999 08:49:29 +0900
+
+plain2 (2.54p1-1) unstable; urgency=low
+
+  * Apply HTML patch of k-chinen@is.aist.nara.ac.jp but slightly modify it
+    so that it can apply to version 2.54(debian/patch/patch-1)
+  * Set -DBSD -DDEBUG in CFLAGS (it might cause trouble).
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Tue, 20 Oct 1998 15:11:19 +0900
+
+plain2 (2.54-4) frozen-jp unstable-jp; urgency=low
+
+  * move manual from /usr/man/ja_JP.ujis into /usr/man/ja
+  * change from unstable to frozen-jp unstable-jp
+	
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Sun, 21 Jun 1998 09:39:50 +0900
+
+plain2 (2.54-3) unstable; urgency=low
+
+  * compress changelog.Debian in usr/doc/plain2 (suggested by linitian).
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Thu,  4 Jun 1998 15:01:19 +0900
+
+plain2 (2.54-2) unstable; urgency=low
+
+  * New copyright by the author, so changes from non-free to main
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Sun, 24 May 1998 09:51:52 +0900
+
+plain2 (2.54-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Atsuhito Kohda <kohda@pm.tokushima-u.ac.jp>  Fri,  8 May 1998 08:10:00 +0900
+
+Local variables:
+mode: debian-changelog
+End:

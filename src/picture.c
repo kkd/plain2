@@ -1,9 +1,13 @@
 /*
  * Copyright (C) 1991,1992 NEC Corporation.
  */
+/*
+ * modify by k-chinen@is.aist-nara.ac.jp, 1994
+ */
+
 #ifndef lint
-static char rcsid[]=
-	"$Id: picture.c,v 2.11 1994/04/19 10:16:53 uchida Exp $ (NEC)";
+
+
 #endif
 
 #ifdef	PICTURE
@@ -627,6 +631,39 @@ int	end;
 	int	l;
 	int	maxLen;
 	int	minInd;
+
+#ifdef HTML
+        static int pic_count=0;
+        if(put == &htmlPut) {
+	    if(htmlOnce) {
+		if(rawOutput) {
+		    printf("<PRE>\n");
+		    for( l = begin; l < end; l++) {
+			htmlRawText(texts[l]->body);
+		    }
+		    printf("</PRE>\n");
+		}
+		else {
+		    printf("<!-- PICTURE -->\n");
+		}
+		return ;
+	    }
+	    else {
+		printf("<!-- plain2:PICTURE %05d %d %d -->\n",
+		    pic_count, begin, end);
+		if(htmlHere) {
+		    printf("<P><IMG SRC=\"PIC%05d.gif\">\n", pic_count);
+		}
+		else {
+	    printf("<P><B><A HREF=\"PIC%05d.gif\">Picture here</A></B></P>\n",
+			    pic_count);
+		}
+		pic_count++;
+		return ;
+	    }
+        }
+#endif /* HTML */
+
 	minInd = minIndent(begin, end);
 	maxLen = maxLength(begin, end);
 	if ((maxLen - minInd) * fontSize > pageWidth)

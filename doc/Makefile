@@ -46,7 +46,7 @@ RAWTEXFILES=Tgif_doc.tex Beginning.tex Hint_all.tex \
 	Example_adjust2.tex
 
 PRTGIF=prtgif+
-PLAIN2=../src/plain2
+PLAIN2=../src/plain2 -tstyle=a4j -jverb
 VERBTEXFILES=
 
 plain2.ps: plain2.dvi
@@ -63,7 +63,10 @@ clean:
 	rm -f  ${SAMPLES} ${OTHERFILES} plain2.tex plain2.dvi plain2.ps \
 	plain2.toc plain2.aux plain2.log
 
-title_a47.tex title_shounin.tex:
+title_a47.tex: title_a47.raw
+	$(PLAIN2) -tex -fexampl_left  $< > $@
+
+title_shounin.tex: title_shounin.raw
 	$(PLAIN2) -tex -fexampl_left  $< > $@
 
 table_kanji.tex: table_kanji.pln

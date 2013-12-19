@@ -19,16 +19,23 @@
  *		2.4: 28/04/92
  *		2.5: 06/08/93
  */
-#define	NEC_CCS			/* NEC C&C Common Software Lab. dependent */
+/*
+ * modify by k-chinen@is.aist-nara.ac.jp, 1994
+ */
 
-#define	NTT_TEX			/* NTT jlatex	*/
+/* #define	NEC_CCS			/* NEC C&C Common Software Lab. dependent */
+
+/* #undef	NTT_TEX			/* NTT jlatex	*/ /* no longer needed */
 
 #define	TITLE_SPECIAL
 
 #define	PLAIN2_ENV	"PLAIN2_INIT"
 #define	PLAIN2_LIB	"PLAIN2_LIB"
 
-#define	MACRO_LIB	"/usr/local/lib/plain2"
+#define	MACRO_LIB	"/usr/lib/plain2"
+
+#define DEFAULT_STY	""	/* default style in TeX output */
+/*#define DEFAULT_STY	"a4" */
 
 #define	MIN_INDENT	4	/* minimum indentation to be indented region */
 #define	MIN_SPACING	4	/* minimum number of lines to be space region*/
@@ -203,9 +210,14 @@ extern int accurateSecnum;		/* Accurate section number output*/
 extern int listDecor;			/* List decoration		*/
 extern int reflectSpace;		/* reflect space lines		*/
 extern int texQuote;			/* Use \verb| | for tex output	*/
+#ifdef HTML
+extern int htmlOnce;			/* One/Multi-path flag for HTML */
+extern int htmlHere;			/* flag of pic/tbl here or not  */
+#endif
 extern int indexEnabled;		/* Enables Indexing		*/
 extern int fontSize;			/* font size			*/
 extern int fontSpecified;		/* font size specified		*/
+extern int useJverb;			/* use jverbatim (Nide)		*/
 /*	*/
 extern FILE *inFile;			/* intput File			*/
 extern struct text	**texts;	/* texts[lineNum] array of text
@@ -268,6 +280,8 @@ int	markIfExample();
 int	markAsPlain();
 int	markIfQuote();
 int	markIfTable();
+struct	picLineElm	*picLineMatch();
+struct	picMiscLines	*picMiscMatch();
 
 /*
  * Output driver
@@ -309,6 +323,9 @@ struct	outDev {
 };
 extern struct outDev	roffPut;
 extern struct outDev	texPut;
+#ifdef HTML
+extern struct outDev	htmlPut;
+#endif
 extern struct outDev	*put;
 
 #define	INLINE_BEGIN	"(("

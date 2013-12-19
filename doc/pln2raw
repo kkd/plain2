@@ -9,22 +9,25 @@
 LNUM=
 while getopts n c
 do
-	case $c in
+	case "$c" in
 	n)	LNUM="on"
 		shift
 	;;
 	esac
 done
 
-echo '{\list{}{\leftmargin=0.5in}\item[]'
-echo '{\baselineskip=10pt'
-echo '\p2zerointerskip'
-echo '\begin{verbatim}'
+cat <<'EOF'
+{\list{}{\leftmargin=0.5in}\item[]
+{\par\baselineskip=10pt
+\begin{jverbatim}
+EOF
 if [ "$LNUM" = "on" ] 
 then
-	awk '{printf "%3d: %s\n",NR,$0}' $1
+	awk '{printf "%3d: %s\n",NR,$0}' ${1+"$@"}
 else
-	cat $1
+	cat ${1+"$@"}
 fi  | expand
-echo '\end{verbatim}}'
-echo '\endlist}'
+cat <<'EOF'
+\end{jverbatim}\par}
+\endlist}
+EOF

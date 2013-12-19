@@ -1,0 +1,17 @@
+--- plain2html.orig	Thu Oct 22 15:10:35 1998
++++ plain2html	Thu Oct 22 15:10:35 1998
+@@ -1,4 +1,4 @@
+-#!/usr/local/bin/tcsh 
++#!/usr/bin/tcsh 
+ #
+ # plain2html:	plain text to HTML file
+ #		by k-chinen@is.aist-nara.ac.jp , 1994
+@@ -46,7 +46,7 @@
+ #
+ set tex=1
+ set roff=0
+-set lib=/usr/local/lib/plain2
++set lib=/usr/lib/plain2
+ 
+ 
+ #

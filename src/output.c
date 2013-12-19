@@ -1,9 +1,12 @@
 /*
  * Copyright (C) 1991,1992,1993 NEC Corporation.
  */
+/*
+ * modify by k-chinen@is.aist-nara.ac.jp, 1994
+ */
 #ifndef lint
-static char rcsid[] =
-	"$Id: output.c,v 2.17 1994/04/19 10:16:51 uchida Exp $ (NEC)";
+
+
 #endif
 
 #include <stdio.h>
@@ -19,9 +22,11 @@ static char rcsid[] =
 			 ?(textp)->body\
 			 :(textp)->body+(textp)->indent)
 #endif
+
 /*
  * Definition of Output driver routines.
  */
+/***** roff *****/
 int	roffPlain(),		roffExample(),
 	roffListBlock(),	roffDlistItem(),
 	roffListItem(),		roffRawText(),	roffSpace(),
@@ -33,6 +38,8 @@ int	roffPlain(),		roffExample(),
 	roffTable(),		roffFTitle(),	roffTitle();
 char	*roffQuote1(),		*roffQuote2();
 
+
+/***** TeX *****/
 int	texPlain(),		texExample(),
 	texListBlock(),	texDlistItem(),
 	texListItem(),		texRawText(),	texSpace(),
@@ -43,6 +50,20 @@ int	texPlain(),		texExample(),
 #endif
 	texTable(),		texFTitle(),	texTitle();
 char	*texQuote1(),		*texQuote2();
+
+#ifdef HTML
+/***** HTML *****/
+int     htmlPlain(),            htmlExample(),
+        htmlListBlock(),        htmlDlistItem(),
+        htmlListItem(),         htmlRawText(),  htmlSpace(),
+        htmlCapsule(),          htmlComment(),
+#ifdef  PICTURE
+        htmlPictureBlock(),     htmlPicLine(),  htmlPicArc(),
+        htmlPicText(),          htmlLineWidth(),
+#endif
+        htmlTable(),            htmlFTitle(),   htmlTitle();
+char    *htmlQuote1(),          *htmlQuote2();
+#endif
 
 struct outDev roffPut = {
 	roffPlain,		roffExample,
@@ -69,9 +90,32 @@ struct outDev texPut = {
 	texTable,		texFTitle,	texTitle,
 	texQuote1,		texQuote2,
 };
+
+#ifdef HTML
+struct outDev htmlPut = {
+        htmlPlain,              htmlExample,
+        htmlListBlock,          htmlDlistItem,
+        htmlListItem,           htmlRawText,    htmlSpace,
+        htmlCapsule,            htmlComment,
+#ifdef  PICTURE
+        htmlPictureBlock,       htmlPicLine,    htmlPicArc,
+        htmlPicText,            htmlLineWidth,
+#endif
+        htmlTable,              htmlFTitle,     htmlTitle,
+        htmlQuote1,             htmlQuote2,
+};
+#endif
+
+
+#ifdef HTML
+/*
+ * Output text in (roff, TeX or HTML) format.
+ */
+#else
 /*
  * Output text in (roff or TeX) format.
  */
+#endif
 
 struct	inline_mark {
 	char	il_mark;
@@ -408,12 +452,19 @@ int	capsule;
 			       + texts[begin]->indent
 			       + texts[begin]->headLen, capsule);
 		PRINTED(begin);
-		if (!capsule)
+		if (!capsule){
+			if(texts[begin]->indent && put == &texPut){
+			 /* この場合、texFTitle()の出力が「\\」で終わっており、
+			    次のputIndent()が「\endlist」を出力する直前に
+			    「\mbox{}」を入れてunderfull hboxの警告を抑える */
+				printf("\\mbox{}");
+			}
 			putIndent(IND_RESUME, 0);
+		}
 		break;
 	    case TB_QUOTE:
 	    case TB_EXAMPLE:
-		putMacro(M_EXAM_BEGIN, fontSize);
+		putMacro(useJverb ? M_JEXAM_BEGIN : M_EXAM_BEGIN, fontSize);
 		for (i = begin; i < end; i++) {
 			PRINTED(i);
 			if (texts[i]->blank)
@@ -421,7 +472,7 @@ int	capsule;
 			else
 				(*put->example)(texts[i]->body + listIndent);
 		}
-		putMacro(M_EXAM_END);
+		putMacro(useJverb ? M_JEXAM_END : M_EXAM_END);
 		break;
 	    case TB_LISTHD:
 		printf("ERROR(List Output%d)%s\n", begin, texts[begin]->body);
@@ -452,17 +503,40 @@ int	capsule;
 	    case TB_TABLE:
 		{
 			int	center;
+			int	indent_amount = 0;
+
 			if (!capsule) {
 				center = isCenter(begin, end);
 				(*put->capsule)(BEGIN, FT_TABLE, center);
-				if (!center)
-					putIndent(IND_INDENT,
-						  texts[begin]->indent / 2);
+				if (!center){
+					indent_amount = 
+					    texts[begin]->indent / 2;
+
+					if(!crossRefer && put == &texPut &&
+					   indent_amount){
+					 /* この場合、texCapsule()の出力が
+					    「\\」で終わっており、次の
+					    putIndent()が「{\list{}…」を出力
+					    する直前に「\mbox{}」を入れて
+					    underfull hboxの警告を抑える */
+					  	printf("\\mbox{}");
+					}
+					putIndent(IND_INDENT, indent_amount);
+				}
 			}
 			tblOutput(begin, end);
 			if (!capsule) {
-				if (!center)
+				if (!center){
+					if(put == &texPut && indent_amount){
+					 /* この場合、直前のputIndent()の出力
+					    が「\\」で終わっており、次の
+					    putIndent()が「\endlist」を出力
+					    する直前に「\mbox{}」を入れて
+					    underfull hboxの警告を抑える */
+					  	printf("\\mbox{}");
+					}
 					putIndent(IND_RESUME, 0);
+				}
 				(*put->capsule)(END, FT_TABLE, center);
 			}
 		}

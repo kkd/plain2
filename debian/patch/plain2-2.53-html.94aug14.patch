@@ -1,0 +1,1481 @@
+diff -p -c -r -N orig-plain2-2.53/src/Makefile plain2/src/Makefile
+*** orig-plain2-2.53/src/Makefile	Fri Jan  7 05:34:39 1994
+--- plain2/src/Makefile	Mon May 16 20:34:27 1994
+*************** LIBDIR=/usr/local/lib/plain2
+*** 10,16 ****
+  
+  SHELL=/bin/sh
+  
+! DEFINES=-DKANJI -DPICTURE
+  
+  #CC=gcc
+  CFLAGS= -g ${DEFINES} -DBSD -DDEBUG
+--- 10,16 ----
+  
+  SHELL=/bin/sh
+  
+! DEFINES=-DKANJI -DPICTURE -DHTML
+  
+  #CC=gcc
+  CFLAGS= -g ${DEFINES} -DBSD -DDEBUG
+*************** CFLAGS= -g ${DEFINES} -DBSD -DDEBUG
+*** 20,30 ****
+  SRCS=plain2.c readfile.c analyze.c miscutil.c\
+  	section.c example.c list.c plaintxt.c table.c spacing.c\
+  	headfoot.c hint.c picture.c justify.c ftitle.c\
+! 	roffout.c texout.c title.c output.c renumout.c macro.c
+  OBJS_NOKANJI=plain2.o readfile.o miscutil.o\
+  	section.o example.o list.o plaintxt.o spacing.o\
+  	headfoot.o hint.o justify.o\
+! 	texout.o output.o renumout.o macro.o
+  #
+  # Following files contain Kanji characters(8bit) in EUC code.
+  #
+--- 20,30 ----
+  SRCS=plain2.c readfile.c analyze.c miscutil.c\
+  	section.c example.c list.c plaintxt.c table.c spacing.c\
+  	headfoot.c hint.c picture.c justify.c ftitle.c\
+! 	roffout.c texout.c title.c output.c renumout.c macro.c htmlout.c
+  OBJS_NOKANJI=plain2.o readfile.o miscutil.o\
+  	section.o example.o list.o plaintxt.o spacing.o\
+  	headfoot.o hint.o justify.o\
+! 	texout.o output.o renumout.o macro.o htmlout.o
+  #
+  # Following files contain Kanji characters(8bit) in EUC code.
+  #
+*************** title.o: plain2.h
+*** 94,96 ****
+--- 94,97 ----
+  output.o: plain2.h picture.h macro.h
+  renumout.o: plain2.h
+  macro.o: plain2.h macro.h
++ htmlout.o: plain2.h macro.h
+diff -p -c -r -N orig-plain2-2.53/src/README.HTML plain2/src/README.HTML
+*** orig-plain2-2.53/src/README.HTML
+--- plain2/src/README.HTML	Sun Aug 14 03:25:01 1994
+***************
+*** 0 ****
+--- 1,176 ----
++ by k-chinen@is.aist-nara.ac.jp
++ 
++ 1.  Prologue
++ 
++ 
++ This packege is patched HTML support plain2.
++ HTML support routines separated by Macro HTML.
++ 
++         #ifdef HTML
++ 
++ If you found bugs, please send mail k-chinen@is.aist-nara.ac.jp.
++ 
++ 
++ 
++ 
++ 2. What is HTML ?
++ 
++ HTML was acronym for Hyper Text Markup Language, which is used in World
++ Wide Web.
++ World Wide Web is famous service for Mosaic. World Wide Web makes hypertext
++ over Network.
++ 
++ 
++ 
++ 3. How to use ?
++ 
++ 3.1. Basic
++ 
++ 3.1.1. convert plain text to HTML
++ 
++ 
++         % plain2 -html foo.txt > bar.html
++ 
++ plain2 convert foo.txt (plain text) to bar.html (HTML).
++ 
++ 
++ 
++ 3.1.2. convert plain text to HTML with pictures and tables
++ 
++ use -here option, plain2 made HTML which include pictures and tables. 
++ But HTML not support picture and table. plain2 only express anchor for link
++ to picture and table
++ 
++ 	% plain2 -html -here foo.txt > junk.html
++ 
++ 
++ 3.1.3. convert plain text to HTML with erasing pictures and tables
++ 
++ If you want to erase picture or table, use -htmlonce option (don't use -html).
++ 
++ 
++ 
++ 3.1.4. convert plain2 text to HTML with raw pictures and tables
++ 
++ If you want to convert plain2 text with raw pictures and tables,
++ use -htmlonce and -raw.
++ 
++ 
++ 
++ 3.2. Extended (plain2html)
++ 
++ 3.2.1. require
++ 
++ HTML is not support picture and table, you know. but plain2 generate 
++ image and table via roff or TeX.
++ Then you need roff or TeX and image processing programs.
++ 
++ For example, this packege include c-shell script which named plain2html.
++ This script ganerate HTML and picture and table files.
++ (pictures and tables are GIF format file).
++ and plain2html require follow programs.
++ 
++     (1) plain2
++ 
++     (2) typesetting program
++         - TeX
++                 * latex and dvi2ps
++ 		  ('jlatex' is japanelized latex. please subsitute 
++ 		   'jlatex' to 'latex' in script)
++         - roff 
++                 * groff
++ 
++     (3) image processing program
++         - convert ( which included ImageMagick)
++         - pnmcrop ( which included pbmplus)
++ 
++     (4) other
++         - csh or tcsh
++         - awk
++         - ghostscript ( convert calle it)
++         - pt2htcol.awk ( inclued this packege )
++ 
++ 3.2.2. How to use
++ 
++ For eample, convert plain text file foo.txt to HTML.
++ 
++     (1) Make working direcory, because plain2 generate many files.
++ 
++                 % mkdir foo.work
++                 % cp foo.txt foo.work
++                 % cd foo.work
++ 
++     (2) run plain2html
++ 
++                % plain2html foo.txt
++ 
++ 	plain2html gerate HTML file foo.html, PIC*.gif (for picture) and 
++ 	TBL*.gif (for table).
++ 
++ So, you get HTML file.  Please check result via Mosaic or Chimera.
++ 
++         % Mosaic foo.html
++ 
++ or 
++ 
++         % chimera foo.html
++ 
++ 
++ 
++ 4.  Changes for plain2
++ 
++ * add -html option
++ 
++ * add -here option
++   Document size is important in WWW. switch include images or not.
++ 
++ * new make htmlout.c (like texout.c)
++ 
++ * Cannot found pictures begin and end, I modify picture.c
++ 
++ * add plain2html and pt2htcol.awk
++ 
++         1. Genate HTML with -html
++         2. Convert pictures and tables.
++ 
++             a) groff
++                 - conver to PS via groff
++ 
++             b) latex
++                 - convert to DVI via latex
++                 - convert to PS via dvi2ps
++ 
++         3. cut improtant part in picures and convert to GIF.
++                 - convet to PNM via 'convert'
++                 - cut via 'pnmcrop'
++                 - convet to GIF via 'convert'
++ 
++ 
++ 
++ 5. Bugs.
++ 
++ * It is multi path
++   plain2 is beauty, because plain2 is one path...
++   but plain2html is multi path.
++ 
++ * I think to hard to install. because it require many programs.
++ 
++ * on groff
++ 	- groff not support japanaes
++ 
++ 
++ 6. Acknowledgment
++ 
++ Special thank for Mr. Uchida (uchida@ccs.mt.nec.co.jp). he release 
++ plain2 r2.5 for this program. And he give important advice and 
++ suggestion.
++ 
++ 
++ 7. Epilogue
++ 
++ This packege is only patch for plain2. It is not new revision of plain2.
++ Then, If you have questions, advices and requiremnts. please mail 
++ k-chinen@is.aist-nara.ac.jp
++ 
++ Own your risk.
++ Enjoy !!!
+diff -p -c -r -N orig-plain2-2.53/src/README.HTML.JPN plain2/src/README.HTML.JPN
+*** orig-plain2-2.53/src/README.HTML.JPN
+--- plain2/src/README.HTML.JPN	Sun Aug 14 02:29:05 1994
+***************
+*** 0 ****
+--- 1,197 ----
++ 題名 plain2 の HTML 対応
++ by k-chinen@is.aist-nara.ac.jp
++ 
++ 1. はじめに
++ 
++ このディレクトリのソースファイルの中で、
++ 
++         #ifdef HTML
++ 
++ としてあるのは、オリジナルの plain2 を奈良先端科学技術大学院大学の
++ 知念 (k-chinen@is.aist-nara.ac.jp) が HTML 対応のため改造したところ
++ です。
++ その部分でバグが起きたと思われる際には k-chinen@is.aist-nara.ac.jp
++ へ E-mail でお知らせください。次のリリースの際の参考にします。
++ 
++ 
++ 
++ 2. HTML とは ?
++ 
++ HTML とは Hyper Text Markup Language の略で、World Wide Web という
++ サービスで文章を作成する為の言語です。World Wide Web は Mosaic と
++ いうプログラムで有名な、ネットワーク上にハイパーテキストを作るサー
++ ビスです。
++ 
++ 
++ 3. 使い方
++ 
++ 3.1. 基本
++ 
++ 3.1.1. plain text を HTML に
++ 
++ 基本的なオリジナルの plain2 とほとんど同じで、
++ 
++         % plain2 -html -jis foo.txt > bar.html
++ 
++ というように使います。
++ こうすると、foo.txt という plain text を bar.html という HTML の書
++ 式でかかれたファイルができます。
++ 
++ 3.1.2. plain text を図や表が入った HTML に
++ 
++ plain2 に -here オプションをつけると、図や表を直接含めるように書か
++ れた HTML の書式のファイルができます。
++ (ただし、残念ながら plain2 で図や表を HTML にする事は出来ません。)
++ 
++         % plain2 -html -here -jis foo.txt > junk.html
++ 
++ として使ってみましょう。
++ この junk.html では、 bar.html で "Picture here" とか "Table here"
++ と書いてあった場所に何か図が出るとおもいます。
++ 
++ 3.1.3. plain text の図や表を無視して HTML に
++ 
++ 図や表を無視して HTML にしたい時には、-html ではなく -htmlonce を
++ 使ってください。
++ 
++ 3.1.4. plain text の図や表はそのままで HTML に
++ 
++ 図や表をそのまま HTML に含めたい時には、-htmlonce と -raw を一緒
++ に使ってください。
++ 
++ 
++ 
++ 3.2. 応用 (plain2html)
++ 
++ 3.2.1. 必要な物
++ 
++ plain2 の HTML を作る機能では図や表は作れませんが、roff や TeX を
++ 使って図や表を作る事が出来ます。このためには roff や TeX の形式の
++ ファイルを gif 等のイメージデータにするプログラムが必要です。
++ 
++ サンプルとして、このパッチでは plain2html という csh script をつ
++ けてあります。このスクリプトでは HTML のファイルとそれに必要な図
++ や表のためのイメージデータを作ります。
++ 
++ このスクリプトを使うには以下のようなプログラムが必要です。
++ 
++     (1) plain2
++ 
++     (2) 組版プログラム
++         - TeX をつかう場合
++                 * jlatex と dvi2ps
++         - roff を使う場合
++                 * groff
++ 
++     (3) イメージデータ変換プログラム
++         - convert ( ImageMagick に含まれています )
++         - pnmcrop ( pbmplus に含まれています )
++ 
++     (4) その他
++         - csh か tcsh
++         - awk
++         - ghostscript ( convert が呼び出します )
++         - pt2htcol.awk ( このパッチに含まれています )
++ 
++ 3.2.2. 使い方
++ 
++ foo.txt を HTML のファイルにする例を紹介します。
++ 
++     (1) 図や表のイメージデータができるので別のディレクトリをつく
++         ってそこで作業しましょう。
++ 
++                 % mkdir foo.work
++                 % cp foo.txt foo.work
++                 % cd foo.work
++ 
++     (2) plain2html を実行します
++ 
++                % plain2html foo.txt
++ 
++         実行が終了すると(いろいろな処理をするので結構時間かかり
++         ます)、foo.html という HTML の書式できたファイルと、図
++         や表のための PIC*.gif や TBL*.gif できます。
++ 
++ というわけで HTML の書式でできたファイルができます。Mosaic や
++ chimera で結果を確認してください。
++ 
++         % Mosaic foo.html
++ 
++ または、
++ 
++         % chimera foo.html
++ 
++ としてください。
++ 
++ 
++ 4. 変更点
++ 
++ * -html オプションをつけた。
++   これで、HTML の出力をする。
++ 
++ * -here オプションをつけた。
++   WWW では文書の大きさは重要(64kbps のサイトもある)なので、HTML
++   の中に表や図を
++ 
++         - そのまま入れる
++         - リンクとする
++ 
++   に切替える。
++ 
++ * texout.c をまねて、htmlout.c を作った。
++   html で始まる関数を作って HMTL 対応した。
++ 
++ * なぜか、図だけは *out.c の関数で領域(始めと終りの行) を知る事
++   ができないようなので、picture.c の中を変更した。
++ 
++ * スクリプト plain2html , pt2htcol.awk を追加。
++   mulit path として何回も実行して、全体を変換する事にした。
++ 
++         1. 全体を -html で変換。
++         2. 表や図の部分を ps に変換。
++ 
++             a) groff
++                 - groff で ps に
++ 
++             b) latex
++                 - jlatex で dvi に
++                 - dvi2ps で ps に
++ 
++         3. 表や図の必要な所を切り出して、gif に変換。
++                 - convert で pnm に
++                 - pnmcrop で切り出す
++                 - convert で gif に
++ 
++            図の切り出しは、TeX では \thispagestyle{empty} を書
++            いたスタイルファイルを用意して解決。
++            groff では -me で解決したようだ。(roff は詳しくない
++            ので自信がない)
++ 
++ 
++ 5. 問題点
++ 
++ * multi path なってしまった。
++   plain2 は one path だから美しいのに...
++ 
++ * いろいろなツールを使うので、install する時は大変かも知れない。
++ 
++ * groff に関して
++         - 日本語が通じない
++ 
++ 
++ 6. 謝辞
++ 
++ plain2 の作者の内田さん(uchida@ccs.mt.nec.co.jp)にはお忙しいのに
++ plain2 r2.5 のリリースをしてもらいました。また、いろいろとコメン
++ トを頂きました。ありがとうございました。
++ 
++ 
++ 
++ 7. おわりに
++ 
++ このパッチは plain2 に対するもので、plain2 の新しい revison では
++ ありません。したがって、このパッチに関する感想、要望、質問などは
++ k-chinen@is.aist-nara.ac.jp 宛でお願いします。
++ 
++ なお、このパッチにによって生じたいかなる損害、利益について作者は
++ 責任を負いません。
+diff -p -c -r -N orig-plain2-2.53/src/htmlout.c plain2/src/htmlout.c
+*** orig-plain2-2.53/src/htmlout.c
+--- plain2/src/htmlout.c	Sun Aug 14 02:15:42 1994
+***************
+*** 0 ****
+--- 1,469 ----
++ /*
++  * Copyright (C) 1991,1992 NEC Corporation.
++  */
++ /*
++     modify from texout.c, by k-chinen@is.aist-nara.ac.jp, 1994
++ 
++     NOTE:
++ 	* This module is prototype of HTML ouputting.
++ 	* HTML can markup. but HTML cannot layout.
++ 	  Therfore this module cannot handle CENTER, RIGHT and SPACE.
++ 	* HTML cannout handle table and picture directly.
++ 	  Therfore this module cannot handle table and picture with
++ 	  TeX and TROFF outoputting's approach.
++ 	  Then I could not implement it.
++ */
++ 
++ 
++ 
++ 
++ #ifndef lint
++ static char rcsid[] =
++ 	"$Id: plain2-2.53-html.94aug14.patch,v 1.1 1999/02/05 22:36:10 kohda Exp $";
++ #endif
++ 
++ #include <stdio.h>
++ #include "plain2.h"
++ #include "picture.h"
++ #include "table.h"
++ #include "macro.h"
++ 
++ 
++ struct	macDefs htmlMacros[] = {
++ 	M_DOC_BEGIN,	"<HTML>\n",
++ 	M_DOC_END,	"</HTML>\n",
++ 	M_PLAIN_BEGIN,	"<P>\n",
++ 	M_PLAIN_END,	"</P>\n",
++ 	M_EXAM_BEGIN,	"<PRE><TT>\n",
++ 	M_EXAM_END,	"</TT></PRE>\n",
++ 	M_APDX_BEGIN,	"<!-- appendix -->\n",
++ 	M_APPENDIX,	"<!-- appendix section -->\n",
++ 	M_BLANK,	"\n",
++ 	M_PAGE,		"\n<!-- PAGE -->\n",
++ 	M_NEWLINE,	"\n<!-- NEWLINE -->\n",
++ 	M_CENTER_BEGIN,	"<!-- CENTER -->\n",
++ 	M_CENTER_END,	"<!-- end of CENTER -->\n",
++ 	M_RIGHT_BEGIN,	"<!-- RIGHT -->\n",
++ 	M_RIGHT_END,	"<!-- end of RIGHT -->\n",
++ 	M_INDENT,	"<BLOCKQUOTE>\n",
++ 	M_INDENT0,	"</BLOCKQUOTE>\n",
++ 	M_FOOTN_BEGIN,	"",
++ 	M_FOOTN_END,	"",
++ 	M_REFER_BEGIN,	"<A HREF=\"#",
++ 	M_REFER_END,	"\">GO</A>",
++ 	M_BOLD_BEGIN,	"<B>",
++ 	M_BOLD_END,	"</B>",
++ 	M_INDEX_BEGIN,	"",
++ 	M_INDEX_END,	"",
++ 	M_SECTION_1,	"\n<H1>@1</H1>\n",
++ 	M_SECTION_2,	"\n<H2>@1</H2>\n",
++ 	M_SECTION_3,	"\n<H3>@1</H3>\n",
++ 	M_SECTION_4,	"\n<H4>@1</H4>\n",
++ 	M_SECTION_5,	"\n<H5>@1</H5>\n",
++ 	M_SECTION,	"",
++ 	M_SETSEC_1,	"",
++ 	M_SETSEC_2,	"",
++ 	M_SETSEC_3,	"",
++ 	M_SETSEC_4,	"",
++ 	M_SETSEC_5,	"",
++ 	M_TITLE, "<TITLE>&1</TITLE>\n<H1>&1</H1>\n<EM>&6</EM>\n<PRE>&4\n&3</PRE>\n<HR>",
++ 	-1,	"",
++ 	};
++ 
++ 
++ /*
++  * HTML text output routines
++  */ 
++ 
++ struct transTable	*htmlTrans;
++ struct transTable	*htmlTransM;
++ 
++ static struct transTable	htmlFullTrans[] = {
++ 	{'<', "&lt;" },
++ 	{'>', "&gt;" },
++ 	{'&', "&amp;" },
++ 	{0,0} };
++ static struct transTable	htmlFullTransM[] = {
++ 	{'<', "&lt;" },
++ 	{'>', "&gt;" },
++ 	{'&', "&amp;" },
++ 	{0,0} };
++ 
++ static struct transTable	htmlHalfTrans[] = {
++ 	{'<', "&lt;" },
++ 	{'>', "&gt;" },
++ 	{'&', "&amp;" },
++ 	{0,0} };
++ 
++ static struct transTable	htmlHalfTransM[] = {
++ 	{'<', "&lt;" },
++ 	{'>', "&gt;" },
++ 	{'&', "&amp;" },
++ 	{0,0} };
++ 
++ htmlSetTrans(full)
++ int	full;
++ {
++ 	if (full) {
++ 		htmlTrans  = htmlFullTrans;
++ 		htmlTransM = htmlFullTransM;
++ 	}
++ 	else {
++ 		htmlTrans  = htmlHalfTrans;
++ 		htmlTransM = htmlHalfTransM;
++ 	}
++ }
++ 
++ 
++ char	*
++ htmlTextQuote(str, quotable)
++ char	*str;
++ int	quotable;
++ {
++ 	char	*s;
++ 	int	len;
++ 	static	char	buf[MAX_LINE_LEN];
++ 
++ 	if (rawOutput)
++         	return str;
++ 
++     	if (!quotable)
++         	return textQuote(str, htmlTransM);
++ 
++        	return textQuote(str, htmlTrans);
++ }
++ 
++ char	*htmlQuote1(str)
++ char	*str;
++ {
++ 	return htmlTextQuote(str, 1);
++ }
++ 
++ char	*htmlQuote2(str)
++ char	*str;
++ {
++ 	return htmlTextQuote(str, 0);
++ }
++ 
++ 
++ htmlPutLabel(str)
++ char	*str;
++ {
++ 	printf("<A NAME=\"%s\"> <EM>(here)</EM> </A>", codeCvt(str));
++ }
++ 
++ htmlPlain(str, attr, newline)
++ char	*str;
++ int	attr;
++ int	newline;
++ {
++ 	if (attr == IL_RAW || attr == IL_REFERENCE)
++ 		printf("%s", codeCvt(str));
++ 	else
++ 		printf("%s", codeCvt(htmlTextQuote(str, 1)));
++ 	if (newline)
++ 		printf("\n");
++ }
++ 
++ htmlExample(str)
++ char	*str;
++ {
++ 	printf("%s\n",textQuote(str, htmlTrans));
++ }
++ 
++ static int	enumLevel = 0;
++ htmlListBlock(begin, level, ltype, hint)
++ int	begin;
++ int	level;
++ int	ltype;
++ char	hint;
++ {
++ 	char	*lstr;
++ 	if (begin) {
++ 		switch (ltype) {
++ 		    case L_BULLET:
++ 		    case L_DASH:
++ 			printf("<UL>\n");
++ 			break;
++ 		    case L_DLIST:
++ 			printf("<DL>\n");
++ 			break;
++ 		    case L_LROMAN:
++ 		    case L_SROMAN:
++ 		    case L_NUMBER:
++ 		    case L_LALPHA:
++ 		    case L_SALPHA:
++ 			enumLevel++;
++ 			printf("<OL>\n");
++ 			break;
++ 		    default:
++ 			break;
++ 		}
++ 	}
++ 	else {
++ 		switch (ltype) {
++ 		    case L_BULLET:
++ 		    case L_DASH:
++ 			printf("</UL>\n");
++ 			break;
++ 		    case L_LROMAN:
++ 		    case L_SROMAN:
++ 		    case L_NUMBER:
++ 		    case L_LALPHA:
++ 		    case L_SALPHA:
++ 			enumLevel--;
++ 			printf("</OL>\n");
++ 			break;
++ 		    case L_DLIST:
++ 			printf("</DL>\n");
++ 			break;
++ 		    default:
++ 			break;
++ 		}
++ 	}
++ }
++ 
++ htmlDlistItem(level, dscr, cont)
++ int	level;
++ char	*dscr;
++ int	cont;
++ {
++ 	printf("<DT><B>%s</B>\n", codeCvt(htmlTextQuote(dscr, 1)));
++ }
++ 
++ htmlListItem(level)
++ int	level;
++ {
++ 	printf("<LI> ");
++ }
++ 
++ htmlRawText(str)
++ char	*str;
++ {
++ 	printf("%s\n",codeCvt(str));
++ }
++ 
++ htmlSpace(length)
++ int	length;	
++ {
++ 	/* EMPTY --- I don't know what do here */
++ }
++ 
++ htmlFTitle(ft, str, capsule)
++ int	ft;
++ char	*str;		/* if (str!=NULL) output title	*/
++ int	capsule;
++ {
++ 	static int	figNumber = 1;
++ 	static int	tblNumber = 1;
++ 	if (crossRefer && capsule) {
++ 		printf("<B>%s</B>\n", codeCvt(htmlTextQuote(str, 1)));
++ 		htmlPutLabel(str);
++ 	}
++ 	else {
++ 		printf ("<P>");
++ #ifdef	KANJI
++ 		if (japaneseText) {
++ 			if (ft == FT_FIGURE)
++ 				printf ("<B> %s %d.</B>", codeCvt("図"), figNumber++);
++ 
++ 			else if (ft == FT_TABLE)
++  				printf ("<B> %s %d.</B>", codeCvt("表"), tblNumber++);
++ 		}
++ 		else {
++ #endif
++ 			if (ft == FT_FIGURE)
++ 				printf ("<B> Figure %d.</B>", figNumber++);
++ 			else if (ft == FT_TABLE)
++ 				printf ("<B> Table %d.</B>", tblNumber++);
++ #ifdef	KANJI
++ 		}
++ #endif
++ 		printf ("%s\n", codeCvt(htmlTextQuote(str, 1)));
++ 	}
++ }
++ 
++ #ifdef	PICTURE
++ /*
++  * Driver for HTML(picture) output
++  */
++ static int	picLines;		/* Number of lines in the block	*/
++ static int	picMinInd;		/* Indentation of the region	*/
++ 
++ static int	htmlVsize;
++ static int	htmlUnit;
++ 
++ htmlPictureBlock(begin, lines, indent, maxLen)
++ int	begin;
++ int	lines;
++ int	indent;
++ int	maxLen;
++ {
++ 	if(htmlOnce) {
++ 	    if(begin)
++ 		    printf("<!-- PICTURE -->\n");
++ 	}
++ 	else {
++ 	    if(begin)
++ 		    printf("<!-- PICTURE -->\n");
++ 	}
++ }
++ 
++ /* set line width	*/
++ htmlLineWidth(style)
++ int	style;
++ {
++ 	/* */
++ }
++ 
++ htmlEllipse(x0, y0, x1, y1, style)
++ int	x0, x1, y0, y1;
++ int	style;
++ {
++ 	/* */
++ }
++ 
++ /*
++  * Draw line
++  *	Only ({-1,0,1},{-1,0,1}) direction.
++  */
++ htmlPicLine(x0, y0, x1, y1, style, vector)
++ int	x0, x1, y0, y1;
++ int	style;
++ int	vector;
++ {
++ 	/* */
++ }
++ 
++ htmlPicArc(x, y, r, dir, style)
++ int	x, y, r;
++ enum	direction dir;
++ int	style;
++ {
++ 	/* */
++ }
++ 
++ htmlPicText(s, xpos, vpos, factor)
++ char	*s;
++ int	xpos;
++ int	vpos;
++ int	factor;
++ {
++ 	/* */
++ }
++ #endif
++ 
++ 
++ 
++ htmlTitle(style, haifu, title, shozoku, number, date, name, renraku
++ #ifdef	TITLE_SPECIAL
++ 	 ,special8, special9
++ #endif
++ 	 )
++ int	style;
++ char	**haifu;
++ char	**title;
++ char	**shozoku;
++ char	**number;
++ char	**date;
++ char	**name;
++ char	**renraku;
++ #ifdef	TITLE_SPECIAL
++ char	**special8, **special9;
++ #endif
++ {
++ 	char	**s;
++ 	if (style == 0) {
++ 		putMacro(M_TITLE,
++ 			 title, number, date, shozoku, haifu, name, renraku
++ #ifdef	TITLE_SPECIAL
++ 			 ,special8, special9
++ #endif
++ 			 );
++ 		return;
++ 	}
++ }
++ 
++ htmlTable(begin, end, tblp)
++ int	begin;
++ int	end;
++ struct	table	*tblp;
++ {
++ 	if(htmlOnce) {
++ 		if(rawOutput) {
++ 			int	l;
++ 
++ 			printf("<PRE>\n");
++ 			for (l = begin; l < end; l++) {
++ 				htmlRawText(texts[l]->body);
++ 			}
++ 			printf("</PRE>\n");
++ 		}
++ 		else {
++ 			printf("<!-- TABLE -->\n");
++ 		}
++ 
++ 	}
++ 	else {
++ 	    static int tbl_count=0;
++ 	    printf("\n<!-- plain2:TABLE %05d %d %d -->\n",tbl_count,begin,end);
++ 
++ 	    if(htmlHere) {
++ 		printf("<P><IMG SRC=\"TBL%05d.gif\">\n", tbl_count);
++ 	    }
++ 	    else {
++ 		printf("<P><B><A HREF=\"TBL%05d.gif\">Table here</A></B></P>\n",
++ 		    tbl_count);
++ 	    }
++ 	    tbl_count++;
++ 	}
++ }
++ 
++ htmlCapsule(begin, type, center)
++ int	begin;
++ int	type;
++ int	center;
++ {
++ 	static int count=0;
++ 	char	*typeStr;
++ 
++ 	if (crossRefer) {
++ 		switch (type) {
++ 		    case FT_FIGURE:
++ 			typeStr = "figure";
++ 			break;
++ 		    case FT_TABLE:
++ 			typeStr = "table";
++ 			break;
++ 		    default:
++ 			fprintf(stderr, "PANIC(unknown capsule type)\n");
++ 			exit(2);
++ 			break;
++ 		}
++ 		if (begin) {
++ 			count++;
++ 			printf("\n<!-- Start of #%d -->\n",count);
++ 		}
++ 		else {
++ 			printf("\n<!-- End of #%d -->\n",count);
++ 		}
++ 	}
++ 	else /* short paper	*/ {
++ 		if (begin) {
++ 			printf("\n<!-- Start of #%d -->\n",count);
++ 		}
++ 		else {
++ 			printf("\n<!-- End of #%d -->\n",count);
++ 		}
++ 	}
++ }
++ 
++ htmlComment(begin, end)
++ int	begin;
++ int	end;
++ {
++ 	int	l;
++ 	for (l = begin; l < end; l++) {
++ 		printf ("<!-- %s -->\n", codeCvt(texts[l]->body));
++ 	}
++ }
+diff -p -c -r -N orig-plain2-2.53/src/macro.c plain2/src/macro.c
+*** orig-plain2-2.53/src/macro.c	Fri Jan  7 05:34:40 1994
+--- plain2/src/macro.c	Sun Aug 14 03:27:30 1994
+*************** char	*fname;
+*** 369,375 ****
+  		}
+  		if (ret == -1)
+  			continue;
+! 		s = (char *)malloc(strlen(defstr));
+  		strcpy(s, defstr);
+  		outMacro[macroNum] = macroParse(s, macroNum, s);
+  	}
+--- 369,375 ----
+  		}
+  		if (ret == -1)
+  			continue;
+! 		s = (char *)malloc(strlen(defstr)+1);
+  		strcpy(s, defstr);
+  		outMacro[macroNum] = macroParse(s, macroNum, s);
+  	}
+diff -p -c -r -N orig-plain2-2.53/src/output.c plain2/src/output.c
+*** orig-plain2-2.53/src/output.c	Fri Jan  7 05:34:46 1994
+--- plain2/src/output.c	Wed Jan 19 19:08:44 1994
+***************
+*** 1,6 ****
+--- 1,9 ----
+  /*
+   * Copyright (C) 1991,1992,1993 NEC Corporation.
+   */
++ /*
++  * modify by k-chinen@is.aist-nara.ac.jp, 1994
++  */
+  #ifndef lint
+  static char rcsid[] =
+  	"$Id: plain2-2.53-html.94aug14.patch,v 1.1 1999/02/05 22:36:10 kohda Exp $ (NEC)";
+*************** static char rcsid[] =
+*** 19,27 ****
+--- 22,32 ----
+  			 ?(textp)->body\
+  			 :(textp)->body+(textp)->indent)
+  #endif
++ 
+  /*
+   * Definition of Output driver routines.
+   */
++ /***** roff *****/
+  int	roffPlain(),		roffExample(),
+  	roffListBlock(),	roffDlistItem(),
+  	roffListItem(),		roffRawText(),	roffSpace(),
+*************** int	roffPlain(),		roffExample(),
+*** 33,38 ****
+--- 38,45 ----
+  	roffTable(),		roffFTitle(),	roffTitle();
+  char	*roffQuote1(),		*roffQuote2();
+  
++ 
++ /***** TeX *****/
+  int	texPlain(),		texExample(),
+  	texListBlock(),	texDlistItem(),
+  	texListItem(),		texRawText(),	texSpace(),
+*************** int	texPlain(),		texExample(),
+*** 44,49 ****
+--- 51,70 ----
+  	texTable(),		texFTitle(),	texTitle();
+  char	*texQuote1(),		*texQuote2();
+  
++ #ifdef HTML
++ /***** HTML *****/
++ int     htmlPlain(),            htmlExample(),
++         htmlListBlock(),        htmlDlistItem(),
++         htmlListItem(),         htmlRawText(),  htmlSpace(),
++         htmlCapsule(),          htmlComment(),
++ #ifdef  PICTURE
++         htmlPictureBlock(),     htmlPicLine(),  htmlPicArc(),
++         htmlPicText(),          htmlLineWidth(),
++ #endif
++         htmlTable(),            htmlFTitle(),   htmlTitle();
++ char    *htmlQuote1(),          *htmlQuote2();
++ #endif
++ 
+  struct outDev roffPut = {
+  	roffPlain,		roffExample,
+  	roffListBlock,	roffDlistItem,
+*************** struct outDev texPut = {
+*** 69,77 ****
+--- 90,121 ----
+  	texTable,		texFTitle,	texTitle,
+  	texQuote1,		texQuote2,
+  };
++ 
++ #ifdef HTML
++ struct outDev htmlPut = {
++         htmlPlain,              htmlExample,
++         htmlListBlock,          htmlDlistItem,
++         htmlListItem,           htmlRawText,    htmlSpace,
++         htmlCapsule,            htmlComment,
++ #ifdef  PICTURE
++         htmlPictureBlock,       htmlPicLine,    htmlPicArc,
++         htmlPicText,            htmlLineWidth,
++ #endif
++         htmlTable,              htmlFTitle,     htmlTitle,
++         htmlQuote1,             htmlQuote2,
++ };
++ #endif
++ 
++ 
++ #ifdef HTML
+  /*
++  * Output text in (roff, TeX or HTML) format.
++  */
++ #else
++ /*
+   * Output text in (roff or TeX) format.
+   */
++ #endif
+  
+  struct	inline_mark {
+  	char	il_mark;
+diff -p -c -r -N orig-plain2-2.53/src/picture.c plain2/src/picture.c
+*** orig-plain2-2.53/src/picture.c	Wed Dec  2 16:01:34 1992
+--- plain2/src/picture.c	Wed Jan 19 19:09:26 1994
+***************
+*** 1,6 ****
+--- 1,10 ----
+  /*
+   * Copyright (C) 1991,1992 NEC Corporation.
+   */
++ /*
++  * modify by k-chinen@is.aist-nara.ac.jp, 1994
++  */
++ 
+  #ifndef lint
+  static char rcsid[]=
+  	"$Id: plain2-2.53-html.94aug14.patch,v 1.1 1999/02/05 22:36:10 kohda Exp $ (NEC)";
+*************** int	end;
+*** 627,632 ****
+--- 631,669 ----
+  	int	l;
+  	int	maxLen;
+  	int	minInd;
++ 
++ #ifdef HTML
++         static int pic_count=0;
++         if(put == &htmlPut) {
++ 	    if(htmlOnce) {
++ 		if(rawOutput) {
++ 		    printf("<PRE>\n");
++ 		    for( l = begin; l < end; l++) {
++ 			htmlRawText(texts[l]->body);
++ 		    }
++ 		    printf("</PRE>\n");
++ 		}
++ 		else {
++ 		    printf("<!-- PICTURE -->\n");
++ 		}
++ 		return ;
++ 	    }
++ 	    else {
++ 		printf("<!-- plain2:PICTURE %05d %d %d -->\n",
++ 		    pic_count, begin, end);
++ 		if(htmlHere) {
++ 		    printf("<P><IMG SRC=\"PIC%05d.gif\">\n", pic_count);
++ 		}
++ 		else {
++ 	    printf("<P><B><A HREF=\"PIC%05d.gif\">Picture here</A></B></P>\n",
++ 			    pic_count);
++ 		}
++ 		pic_count++;
++ 		return ;
++ 	    }
++         }
++ #endif /* HTML */
++ 
+  	minInd = minIndent(begin, end);
+  	maxLen = maxLength(begin, end);
+  	if ((maxLen - minInd) * fontSize > pageWidth)
+diff -p -c -r -N orig-plain2-2.53/src/plain2.c plain2/src/plain2.c
+*** orig-plain2-2.53/src/plain2.c	Fri Jan  7 18:40:47 1994
+--- plain2/src/plain2.c	Wed Jan 19 19:09:44 1994
+***************
+*** 1,6 ****
+--- 1,10 ----
+  /*
+   * Copyright (C) 1991,1992,1994 NEC Corporation.
+   */
++ /*
++  * modify by k-chinen@is.aist-nara.ac.jp, 1994
++  */
++ 
+  #ifndef	lint
+  static char rcsid[] =
+  	"$Id: plain2-2.53-html.94aug14.patch,v 1.1 1999/02/05 22:36:10 kohda Exp $ (NEC)";
+*************** static char rcsid[] =
+*** 12,17 ****
+--- 16,44 ----
+  #include "plain2.h"
+  #include "macro.h"
+  
++ #ifdef HTML
++ #define	PLAIN2_USAGE_1	"\
++ usage: plain2 [options] [files ...]\n\n\
++   ---- parser options ----		   ---- output options ----(default)\n\
++ -table=dd: table factor	 [0-100](def=50) -roff:	    troff output\n\
++ -exam=dd:  example factor[0-100](def=50) -ms/-mm:   troff macro	       (mm)\n\
++ -indsec:   sections can be indented      -tex:      tex output\n\
++ -ktable:enable JIS keisen table		 -tstyle=ss:tex style\n\
++ -ref:	   figure/picture reference	 -html:     HTML output\n\
++ 					 -htmlonce: HTML (one path) output\n\
++ 					 -here:	    HTML table/picture ref.\n\
++ 					 -renum:    renumbering only\n\
++  					 -[no]listd:list decoration    (on)\n\
++   ---- Others ----			 -[no]space:spacing            (on)\n\
++ -v:	   verbose output		 -[no]pre:  preamble block     (on)\n\
++ -dLevel:   debug level			 -[no]acursec: section numbers (off)\n\
++   ----- experimental ----		 -raw:      quote special chars(off)\n\
++ -pt=Size:  font size			 -jis:      JIS code output\n\
++  					 -sjis:     Shift-JIS code input/output\n\
++  					 -f file:   output customization\n\n"
++ #define	VERSION	"plain2 r2.53 1994/01 by A.Uchida C&C Open Systems Lab. NEC\n\
++ \t(HTML output) by k-chinen@is.aist-nara.ac.jp, NAIST"
++ #else
+  #define	PLAIN2_USAGE_1	"\
+  usage: plain2 [options] [files ...]\n\
+    ---- parser options ----		   ---- output options ----(default)\n\
+*************** usage: plain2 [options] [files ...]\n\
+*** 29,40 ****
+   					 -sjis:     Shift-JIS code input/output\n\
+   					 -f file:   output customization\n"
+  #define	VERSION	"plain2 r2.53 1994/01 by A.Uchida C&C Open Systems Lab. NEC"
+  
+! extern	char	*getenv();
+  extern char	*optarg;
+  extern int	optind;
+  extern struct macDefs	roffMacros[], roffMsMacros[];
+  extern struct macDefs	texMacros[];
+  /*
+   * Default parameters for Parsing
+   */
+--- 56,72 ----
+   					 -sjis:     Shift-JIS code input/output\n\
+   					 -f file:   output customization\n"
+  #define	VERSION	"plain2 r2.53 1994/01 by A.Uchida C&C Open Systems Lab. NEC"
++ #endif
+  
+! extern char	*getenv();
+  extern char	*optarg;
+  extern int	optind;
+  extern struct macDefs	roffMacros[], roffMsMacros[];
+  extern struct macDefs	texMacros[];
++ #ifdef HTML
++ extern struct macDefs   htmlMacros[];
++ #endif
++ 
+  /*
+   * Default parameters for Parsing
+   */
+*************** int texQuote	    =  0;
+*** 64,69 ****
+--- 96,105 ----
+  int fontSize	    = 10;
+  int fontSpecified   =  0;
+  int verbose	    =  0;
++ #ifdef HTML
++ int htmlOnce        =  0;
++ int htmlHere        =  0;
++ #endif
+  char *plain2Lib	    = NULL;
+  char *macroName	    = NULL;
+  char *texStyle	    = NULL;
+*************** doPlain2()
+*** 163,176 ****
+  
+  	if (firstTime) {
+  		firstTime = 0;
+  		if (put == &roffPut) {
+  			if (roffMacro == MS_MACRO)
+  				initMacroDefs(roffMsMacros);
+  			initMacroDefs(roffMacros);
+  		}
+! 		else if (put == &texPut)
+  			initMacroDefs(texMacros);
+- 		if (put == &texPut) {
+  			if (halfCooked) {
+  				texSetTrans(0);
+  			}
+--- 199,224 ----
+  
+  	if (firstTime) {
+  		firstTime = 0;
++ #ifdef HTML
++ 		if (put == &htmlPut) {
++ 			initMacroDefs(htmlMacros);
++ 			/* sorry, nothing is change this "if" */
++ 			if (halfCooked) {
++ 				htmlSetTrans(0);
++ 			}
++ 			else {
++ 				htmlSetTrans(1);
++ 			}
++ 		}
++                 else
++ #endif
+  		if (put == &roffPut) {
+  			if (roffMacro == MS_MACRO)
+  				initMacroDefs(roffMsMacros);
+  			initMacroDefs(roffMacros);
+  		}
+! 		else if (put == &texPut) {
+  			initMacroDefs(texMacros);
+  			if (halfCooked) {
+  				texSetTrans(0);
+  			}
+*************** char	**xargv;
+*** 407,412 ****
+--- 455,476 ----
+  				OUTPUT_OPTION("-alfraw");
+  				halfCooked = 1;
+  			}
++ #ifdef HTML
++ 			else if (strcmp(optarg, "tmlonce") == 0) {
++ 				OUTPUT_OPTION("-htmlonce");
++ 				htmlOnce = 1;
++ 				put = &htmlPut;
++ 			}
++ 			else if (strcmp(optarg, "tml") == 0) {
++ 				OUTPUT_OPTION("-html");
++ 				htmlOnce = 0;
++ 				put = &htmlPut;
++ 			}
++ 			else if (strcmp(optarg, "ere") == 0) {
++ 				OUTPUT_OPTION("-here");
++ 				htmlHere = 1;
++ 			}
++ #endif
+  			else	goto usage;
+  			break;
+  		    case 't':
+diff -p -c -r -N orig-plain2-2.53/src/plain2.h plain2/src/plain2.h
+*** orig-plain2-2.53/src/plain2.h	Fri Jan  7 05:34:50 1994
+--- plain2/src/plain2.h	Wed Jan 19 19:10:16 1994
+***************
+*** 19,24 ****
+--- 19,28 ----
+   *		2.4: 28/04/92
+   *		2.5: 06/08/93
+   */
++ /*
++  * modify by k-chinen@is.aist-nara.ac.jp, 1994
++  */
++ 
+  #define	NEC_CCS			/* NEC C&C Common Software Lab. dependent */
+  
+  #define	NTT_TEX			/* NTT jlatex	*/
+*************** extern int accurateSecnum;		/* Accurate 
+*** 203,208 ****
+--- 207,216 ----
+  extern int listDecor;			/* List decoration		*/
+  extern int reflectSpace;		/* reflect space lines		*/
+  extern int texQuote;			/* Use \verb| | for tex output	*/
++ #ifdef HTML
++ extern int htmlOnce;			/* One/Multi-path flag for HTML */
++ extern int htmlHere;			/* flag of pic/tbl here or not  */
++ #endif
+  extern int indexEnabled;		/* Enables Indexing		*/
+  extern int fontSize;			/* font size			*/
+  extern int fontSpecified;		/* font size specified		*/
+*************** struct	outDev {
+*** 309,314 ****
+--- 317,325 ----
+  };
+  extern struct outDev	roffPut;
+  extern struct outDev	texPut;
++ #ifdef HTML
++ extern struct outDev	htmlPut;
++ #endif
+  extern struct outDev	*put;
+  
+  #define	INLINE_BEGIN	"(("
+diff -p -c -r -N orig-plain2-2.53/src/plain2html plain2/src/plain2html
+*** orig-plain2-2.53/src/plain2html
+--- plain2/src/plain2html	Sun Aug 14 02:27:11 1994
+***************
+*** 0 ****
+--- 1,159 ----
++ #!/usr/local/bin/tcsh 
++ #
++ # plain2html:	plain text to HTML file
++ #		by k-chinen@is.aist-nara.ac.jp , 1994
++ #
++ # NOTE:
++ # 	* This script will be running under csh or tcsh.
++ # 	* Handle with care for directory, because this script make
++ #	  a lot of temporary file and output file.
++ #
++ 
++ 
++ #
++ # require:
++ #
++ #    program:
++ #	csh or tcsh
++ #	plain2 ( have -html option verison )
++ #	awk
++ #	groff ( gtbl, gpic )
++ #	latex or jlatex
++ #	dvi2ps
++ #	convert ( convertable PS to Any-format version )
++ #	pnmcrop ( included PBMPLUS )
++ #	ghostscript ( called by convert when convert PS format )
++ #
++ #    script:
++ #	pt2htcol.awk ( included this packeage )
++ #
++ #
++ # input:
++ #	$1 (plain text file name.  e.g., README.j)
++ #
++ # output:
++ #	$1:r.html  (e.g., README.html)
++ #
++ # temporary file:
++ #	_src, _cut.sh , _out.html , pt2empty.sty, _tmp.pnm
++ #	TBL*.p TBL*.ps TBL*.src TBL*.tex TBL*.dvi TBL*.pnm
++ #	PIC*.p PIC*.ps PIC*.src PIC*.tex PIC*.dvi PIC*.pnm
++ #				
++ 
++ 
++ #
++ # Default values
++ #
++ set tex=1
++ set roff=0
++ set lib=/usr/local/lib/plain2
++ 
++ 
++ #
++ # Check args.
++ #
++ if ( $#argv > 0 ) then
++ 	switch ($1)
++ 	case -tex:
++ 		set tex=1
++ 		set roff=0
++ 		shift
++ 		breaksw
++ 	case -roff:
++ 		set tex=0
++ 		set roff=1
++ 		shift
++ 		breaksw
++ 	default:
++ 		breaksw
++ 	endsw
++ endif
++ 
++ if ( $#argv > 0 ) then
++ 	set target=$1
++ else
++ 	cat << END_USAGE
++ plain2html: plain text to HTML file
++ 	by k-chinen@is.aist-nara.ac.jp NAIST , 1994
++ 
++ usage: plain2html [option] input-filename
++ 
++ option:		-tex	TeX mode (use latex, dvi2ps) [defauts]
++ 		-roff	roff mode (use groff)
++ 
++ END_USAGE
++ 	exit
++ endif
++ 
++ 
++ 
++ #
++ # Start
++ #	convert document's main body.
++ #	collect table/picture location and cut these.
++ #
++ 
++ echo "Copy Target $target ."
++ cp $target _src
++ 
++ echo "Process document main body"
++ plain2 -html -jis -here _src > _out.html
++ 
++ echo "Collect Table/Picutre"
++ awk -f $lib/pt2htcol.awk _out.html > _cut.sh
++ 
++ 
++ 
++ #
++ # Convert parts(table/picture) via LaTeX
++ #	If you don't have jlatex substitute to "latex".
++ #	( jlatex is Japanese LaTeX )
++ # 
++ if ( $tex ) then
++ cat << END_STYLEFILE > pt2empty.sty
++ \\thispagestyle{empty}
++ \\pagestyle{empty}
++ END_STYLEFILE
++ cat << END_TEX_CUT >> _cut.sh
++ foreach i ( TBL*.p PIC*.p ) 
++ 	echo "Part \$i process"
++         plain2 -tex -jis -tstyle=pt2empty \$i > \$i:r.tex
++         jlatex \$i:r.tex
++         dvi2ps \$i:r.dvi > \$i:r.ps
++ 	convert -density 144x144 \$i:r.ps \$i:r.pnm
++ 	pnmcrop -white \$i:r.pnm > _tmp.pnm
++ 	convert _tmp.pnm \$i:r.gif
++ 	rm -f \$i:r.ps \$i:r.dvi \$i:r.aux \$i:r.log \$i:r.tex \$i:r.p \$i:r.pnm
++ end
++ END_TEX_CUT
++ endif
++ 
++ #
++ # Convert parts(table/picture) via GROFF
++ #	If you don't have gorff substitute to ROFF-like program.
++ #
++ if ( $roff ) then
++ cat << END_ROFF_CUT >> _cut.sh
++ foreach i ( TBL*.p PIC*.p ) 
++ 	echo "Part \$i process"
++ 	plain2 -roff -euc  \$i > \$i:r.src
++ 	groff -me -t -p \$i:r.src > \$i:r.ps
++ 	convert -density 144x144 \$i:r.ps \$i:r.pnm
++ 	pnmcrop -white \$i:r.pnm > _tmp.pnm
++ 	convert _tmp.pnm \$i:r.gif
++ 	rm -f \$i:r.ps \$i:r.src \$i:r.p \$i:r.pnm
++ end
++ END_ROFF_CUT
++ endif
++ 
++ #
++ # Run parts conversion script
++ #
++ echo "Cut Table/Picture"
++ $shell _cut.sh
++ 
++ rm -f $target:r.html
++ mv _out.html $target:r.html
++ rm -f _cut.sh pt2empty.sty _src _tmp.pnm
++ 
++ echo "Complete"
+diff -p -c -r -N orig-plain2-2.53/src/pt2htcol.awk plain2/src/pt2htcol.awk
+*** orig-plain2-2.53/src/pt2htcol.awk
+--- plain2/src/pt2htcol.awk	Wed Jan 19 11:20:18 1994
+***************
+*** 0 ****
+--- 1,20 ----
++ #
++ # pt2htcol.awk: plain2html's parts collection awk-script.
++ #	by k-chinen@is.aist-nara.ac.jp , 1994
++ #
++ # plain2's (with -html) output have "plain2:TABLE" and "plain2:PICTURE"
++ # sentence. It is mean that output have link to TABLE and PICTURE.
++ # Therefore, this script collect such sentence and make cutting script.
++ #
++ BEGIN{
++ }
++ /^<!-- plain2:TABLE/{
++ 	# print "# " $0
++ 	printf "# table %d th, start %d, end %d\n", $3, $4, $5
++ 	printf "head -%d _src| tail -%d > TBL%05d.p\n",$5, $5-$4+1, $3
++ }
++ /^<!-- plain2:PICTURE/{
++ 	# print "# " $0
++ 	printf "# picture %d th, start %d, end %d\n", $3, $4, $5
++ 	printf "head -%d _src| tail -%d > PIC%05d.p\n",$5, $5-$4+1, $3
++ }

@@ -1,0 +1,51 @@
+--- plain2.pln.orig	Tue Feb  9 10:02:22 1999
++++ plain2.pln	Tue Feb  9 10:04:11 1999
+@@ -8,7 +8,7 @@
+ \vspace{1cm}
+ べた書き入力による文書清書システム\\
+ \vspace{1cm}
+-\epsfile{file=logo.eps}\\
++\epsfbox{logo.eps}\\
+ \vspace{0.2cm}
+ \Huge
+ {\bf r2.5\\ユーザガイド\\}
+@@ -1845,7 +1845,7 @@
+ 
+ [[R
+ ~\\
+-\epsfile{file=modules.eps}\\
++\epsfbox{modules.eps}\\
+ ]]R
+ 
+ 6.1. LaTeX出力
+@@ -2272,7 +2272,7 @@
+ [[R
+ ~\\
+ \mbox{}\begin{center}
+-\epsfile{file=tgif_win.eps}\\
++\epsfbox{tgif_win.eps}\\
+ \end{center}
+ ]]R
+ 
+--- tgif_doc.pln.orig	Tue Feb  9 10:02:36 1999
++++ tgif_doc.pln	Tue Feb  9 10:04:57 1999
+@@ -6,7 +6,7 @@
+ [[R
+ \begin{figure}[h]
+ \begin{center}
+-\epsfile{file=tgif_fig.eps}
++\epsfbox{tgif_fig.eps}
+ \end{center}
+ \end{figure}
+ ]]R
+--- Tgif_doc.tex.orig	Tue Feb  9 10:02:46 1999
++++ Tgif_doc.tex	Tue Feb  9 10:05:19 1999
+@@ -11,7 +11,7 @@
+ \medskip
+ 
+ \begin{center}
+-\epsfile{file=tgif_fig.eps}
++\epsfbox{tgif_fig.eps}
+ \end{center}
+ \medskip
+ \par
