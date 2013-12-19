@@ -1,0 +1,11 @@
+\tc\lib\c0l+
+plain2 readfile miscutil+
+section example list plaintxt spacing+
+headfoot hint justify+
+texout output renumout macro+
+roffout analyze table title picture ftitle
+plain2.exe
+
+\tc\lib\mathl+
+\tc\lib\emu+
+\tc\lib\cl

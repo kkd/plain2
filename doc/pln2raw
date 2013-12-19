@@ -1,0 +1,30 @@
+#!/bin/sh
+#	Conver a plain text to raw (verbatim) LaTex input
+#
+#				Copyright (C) 1994 A.Uchida
+#
+#	$Id: pln2raw,v 2.1 1994/04/19 09:29:07 uchida Exp $
+#
+
+LNUM=
+while getopts n c
+do
+	case $c in
+	n)	LNUM="on"
+		shift
+	;;
+	esac
+done
+
+echo '{\list{}{\leftmargin=0.5in}\item[]'
+echo '{\baselineskip=10pt'
+echo '\p2zerointerskip'
+echo '\begin{verbatim}'
+if [ "$LNUM" = "on" ] 
+then
+	awk '{printf "%3d: %s\n",NR,$0}' $1
+else
+	cat $1
+fi  | expand
+echo '\end{verbatim}}'
+echo '\endlist}'

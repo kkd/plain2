@@ -1,0 +1,12 @@
+#
+# 題名，日付，章番号を使ったヘッダ・フッタ(troff)
+#
+#
+# $Id: header_t.p2,v 1.1 1993/02/25 19:40:29 uchida Exp $
+#
+TITLE   "&1\n.ce 999\n\\fB\\s+4&2\n\\fP\\s-4\n.ce 0\n\
+.ad r\n&3\n.br\n&4\n.br\n&5\n.br\n&6\n.br\n&7\n.br\n.ad b\n.br 2\n\
+.PH \"'&2''&5'\"\n\
+.PF \"''ro'%'\"\n"
+SECTION_1       ".H 1 \"@1\"\n\
+.PF \"'\\n(H1 章'@1'%'\"\n"

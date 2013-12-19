@@ -1,0 +1,15 @@
+#
+#	NEC C&C ソフトウェア開発グループ  troff  OHP マクロ用
+#			92/11/27
+#			A.Uchida
+#
+#	1. セクションが，OHPタイトルとなる
+#	2. タイトル，所属，日付を使ったヘッダを定義する
+#
+# $Id: OHP_t.p2,v 1.1 1993/02/25 19:40:23 uchida Exp $
+#
+SECTION		".t \"@2\"\n"
+TITLE		".ps 30\n.vs 36\n.sp 16\n.ce 999\n&2\n"
+APPENDIX	".t \"@1\"\n"
+DOC_BEGIN	".nr Ls 0\n"
+TITLE		".OHP \"&1 - \\\\\\\\n%\" \"&4\" \"&3\""

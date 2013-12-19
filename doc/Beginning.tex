@@ -1,0 +1,126 @@
+~\\
+\hspace*{2cm}\framebox[13.5cm][l]{~~\begin{minipage}{12cm}
+\setcounter{sectionx}{0}{\small\baselineskip=10pt
+{\center{\large はじめてのplain2~}\\
+~1992/11/22\\
+~\\
+~内田昭宏\\
+~\\
+}
+\medskip
+
+{\large \dg\bf\addtocounter{sectionx}{1}\setcounter{subsectionx}{0}{\thesectionx} ようこそ plain2 の世界へ}
+\medskip
+\par
+TeXなんて書けない，読めない．そんなユーザの声に応える
+のがplain2です．使い方は簡単．特殊文字\{$\backslash$"'\}もそのままどうぞ．
+\medskip
+{\list{}{\leftmargin=8ex}\item[]
+{\baselineskip=10pt
+\tt\obeylines
+\%~plain2~-tex~example.pln~>~example.tex\\
+\%~jlatex~exapmle.tex\\
+\ \ \ \ \ \ \ \ ...\\
+\ \ \ \ \ \ \ \ ...\\
+\%~xdvi~example.dvi\\
+}
+\endlist}
+\medskip
+
+{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} 多様なリスト}
+\medskip
+\par
+いろいろなリストが書けます．ネストもできます．
+\begin{itemize}
+\item 項目型リスト
+\par
+先頭にビュレット"・"やダッシュのある行
+\item 列挙型リスト
+\begin{enumerate}
+\item 数字
+\item アルファベット
+\item ローマ数字
+\end{enumerate}
+\item 記述型リスト
+\medskip
+\end{itemize}
+
+{\normalsize \dg\bf\addtocounter{subsectionx}{1}\setcounter{subsubsectionx}{0}{\thesectionx}.{\thesubsectionx} テーブルと線画の機能}
+\medskip
+\par
+plain2ならテーブルも簡単に書けます
+~\\
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+           & べた書き & マークアップ & ワープロ\\
+\hline\hline
+覚えやすさ &   ○     &       ×     &   ◎    \\
+読みやすさ &   ◎     &       ×     &   ◎    \\
+データ交換 &   ○     &       ○     &   ×    \\
+\hline
+\end{tabular}\\
+\end{center}
+\medskip
+~\\
+\begin{center}
+\begin{picture}(288,120)(0,0)
+\put(3,97){簡単な絵くらいは書けます．}
+\thinlines
+\put(18, 88){\line(1, 0){36}}
+\thinlines
+\put(198, 88){\line(1, 0){72}}
+\put(27,73){べた}
+\thicklines
+\put(78, 76){\line(1, 0){84}}
+\put(207,73){ＬａＴｅＸ}
+\put(27,61){書き}
+\thicklines
+\put(54, 64){\vector(1,0){18}}
+\put(87,61){ｐｌａｉｎ２}
+\thinlines
+\put(162, 64){\line(1, 0){12}}
+\thinlines
+\put(174, 64){\vector(1,0){18}}
+\thinlines
+\put(210, 64){\line(1, 0){60}}
+\thinlines
+\put(270, 64){\line(1, 0){12}}
+\put(27,49){テキ}
+\thicklines
+\put(78, 52){\line(1, 0){84}}
+\put(219,49){ｔｒｏｆｆ}
+\put(27,37){スト}
+\thinlines
+\put(198, 40){\line(1, 0){12}}
+\thinlines
+\put(18, 28){\line(1, 0){36}}
+\thinlines
+\put(174, 28){\vector(1,0){30}}
+\thinlines
+\put(210, 16){\line(1, 0){72}}
+\thinlines
+\put(18, 88){\line(0, -1){60}}
+\thinlines
+\put(54, 88){\line(0, -1){24}}
+\thinlines
+\put(54, 64){\line(0, -1){36}}
+\thicklines
+\put(78, 76){\line(0, -1){24}}
+\thicklines
+\put(162, 76){\line(0, -1){24}}
+\thinlines
+\put(174, 64){\line(0, -1){36}}
+\thinlines
+\put(198, 88){\line(0, -1){48}}
+\thinlines
+\put(210, 64){\line(0, -1){24}}
+\thinlines
+\put(210, 40){\line(0, -1){24}}
+\thinlines
+\put(270, 88){\line(0, -1){24}}
+\thinlines
+\put(282, 64){\line(0, -1){48}}
+\end{picture}
+\end{center}
+}\end{minipage}}\\

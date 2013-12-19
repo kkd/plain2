@@ -1,0 +1,22 @@
+#
+# 題名，日付，章番号を使ったヘッダ・フッタ(LaTeX)
+#			92/11/27
+#			A.Uchida
+#
+# $Id: header.p2,v 1.1 1993/02/25 19:40:26 uchida Exp $
+#
+TITLE	"\\title{\n&1}\n\\author{\n&6\\\\\n&3}\n\\date{\n&5}\n\\maketitle\n\
+	\\makeatletter\n\
+	\\def\\ps@mypage{%\n\
+	  \\let\\@mkboth=\\@gobbletwo\n\
+	  \\def\\@evenhead{}\\def\\@evenfoot{}%\n\
+	  \\def\\@oddhead{\\makebox[\\textwidth]%\n\
+	  	{\\ &2\\hfill\\ &5}}%\n\
+	  \\def\\@oddfoot{\\makebox[\\textwidth]%\n\
+		{\\thesection\\ 章\\hfill\\rightmark\\hfill\\thepage}}}\n\
+	\\makeatother\n\
+	\\thispagestyle{mypage}\n\
+	\\pagestyle{mypage}\n"
+SECTION_1	"\n\\markright{@1}\\section{@1}\n"
+
+

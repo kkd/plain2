@@ -1,0 +1,14 @@
+1. tgif+ の利用
+
+tgif+ で書いた絵を次のようにして
+べた書き文書に取り込みます．
+
+[[R
+\begin{figure}[h]
+\begin{center}
+\epsfile{file=tgif_fig.eps}
+\end{center}
+\end{figure}
+]]R
+
+うまくできたでしょうか？

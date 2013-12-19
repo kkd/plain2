@@ -1,0 +1,33 @@
+DOC_BEGIN	"\\documentstyle[epsf]{jarticle}\n\
+	\\setcounter{secnumdepth}{6}\n\
+	\\setcounter{tocdepth}{6}\n\
+	\\topsep=0.1cm\n\
+	\\parsep=0.1cm\n\
+	\\itemsep=0.0cm\n\
+	\\newcounter{sectionx}\n\
+	\\newcounter{subsectionx}\n\
+	\\newcounter{subsubsectionx}\n\
+	\\newcounter{paragraphx}\n\
+	\\newcounter{subparagraphx}\n\
+	\\begin{document}\n\
+	\\makeatletter\n\
+	\\def\\ps@original{%\n\
+	  \\let\\@mkboth=\\@gobbletwo\n\
+	  \\def\\@evenhead{}\\def\\@evenfoot{}%\n\
+	  \\def\\@oddhead{\\makebox[\\textwidth]%\n\
+	  	{\\ plain2ユーザガイド(r2.5)\\hfill\\thesection\\ 章}}%\n\
+	  \\def\\@oddfoot{\\makebox[\\textwidth]%\n\
+		{\\rightmark\\leaders\\hbox{\\tiny ~plain2}\\hfill}\\ \\thepage}}\n\
+	\\@ifundefined{jintercharskip}{%\n\
+		\\def\\p2zerointerskip{\\kanjiskip=0cm}}{%\n\
+		\\def\\p2zerointerskip{\\jintercharskip=0cm}}\n\
+	\\makeatother\n"
+SECTION_1	"\n\
+\\section{@1}\
+\\markright{{\\thesection}~~~~@1}\n"
+SECTION_2	"\n\
+\\subsection{@1}\
+\\markright{{\\thesubsection}~~~~@1}\n"
+APPENDIX	"\n\
+\\section{@1}\
+\\markright{{\\thesection}~~~~@1}\n"

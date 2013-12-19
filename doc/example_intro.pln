@@ -1,0 +1,30 @@
+・プログラムの引用
+
+uchar	*
+listSecBody(textp)
+struct	text	*textp;
+{
+	uchar	*s;
+	s = textp->body + textp->indent + textp->headLen;
+	while (*s != '\0') {
+		if (*s != ' ')
+			break;
+		s++;
+	}
+	return s;
+}
+
+・図版
+
+           XXNetへ
+            |
+        +---+---+                        +-------+
+        | CISCO |                        | CISCO |
+        +---+---+                        +---+---+
+            |                                |
+  ---+------+-------+----------------+-------+-------+---- 123.45.67
+     |              |                |               |
++----++         +---+----+      +----+---+      +----+---+
+|ns-in|         |○host-A|      |●host-B|      |○host-C|
++-----+         +--------+      +--------+      +--------+
+

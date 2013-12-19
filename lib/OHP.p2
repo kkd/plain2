@@ -1,0 +1,24 @@
+#
+#	LaTeX OHP サポート用
+#			92/11/27
+#			A.Uchida
+#
+#	1. セクションが，OHPタイトルとなる
+#	2. タイトル，所属，日付を使ったヘッダを定義する
+#
+# $Id: OHP.p2,v 1.1 1993/02/25 19:40:19 uchida Exp $
+#
+DOC_BEGIN	"\\documentstyle[OHP]{jarticle}\n\
+\\setcounter{secnumdepth}{6}\n\
+\\setcounter{tocdepth}{6}\n\
+\\topsep=0.1cm\n\
+\\parsep=0.1cm\n\
+\\itemsep=0.0cm\n\
+\\begin{document}\n\
+\\Huge\n"
+TITLE		"\\OHPheader{&1}{&3}{&5}\n"
+SECTION_1	"\\OHPtitle{@1}\n"
+SECTION_2	"\\OHPtitle{@1}\n"
+SECTION_3	"\\OHPtitle{@1}\n"
+SECTION_4	"\\OHPtitle{@1}\n"
+SECTION_5	"\\OHPtitle{@1}\n"

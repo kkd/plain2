@@ -1,0 +1,11 @@
+#
+# セクションに番号を付けない形式
+# 	(\section でなく \section* を使う)
+#
+# $Id: supsnum.p2,v 1.1 1993/02/25 19:40:35 uchida Exp $
+#
+SECTION_1	"\n\\section*{@1}\n"
+SECTION_2	"\n\\subsection*{@1}\n"
+SECTION_3	"\n\\subsubsection*{@1}\n"
+SECTION_4	"\n\\paragraph*{@1}~\\\\\n"
+SECTION_5	"\n\\subparagraph*{@1}~\\\\\n"

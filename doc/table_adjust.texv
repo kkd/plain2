@@ -1,0 +1,16 @@
+{\list{}{\leftmargin=0.5in}\item[]
+{\baselineskip=10pt
+\jintercharskip=0cm
+\begin{verbatim}
+% plain2 -tex -nopre table_adjust.pln
+\par
+次のように枠のないテーブルは，
+正しくテーブルと解釈されない場合があります．
+{\list{}{\leftmargin=8ex}\item[]
+\par
+評価値を変える         $-$table$=$60
+明示的に指定する       "[[T"と"]]T"
+そのまま我慢する       多分例示になる
+\endlist}
+\end{verbatim}}
+\endlist}

@@ -1,0 +1,22 @@
+#
+# jbookスタイルを使う
+#
+# $Id: jbook.p2,v 1.1 1993/02/25 19:40:32 uchida Exp $
+#
+DOC_BEGIN	"\\documentstyle[]{jbook}\n\
+\\setcounter{secnumdepth}{6}\n\
+\\setcounter{tocdepth}{6}\n\
+\\topsep=0.1cm\n\
+\\parsep=0.1cm\n\
+\\itemsep=0.0cm\n\
+\\begin{document}\n",
+SECTION_1	"\n\\chapter{@1}\n",
+SECTION_2	"\n\\section{@1}\n",
+SECTION_3	"\n\\subsection{@1}\n",
+SECTION_4	"\n\\subsubsection{@1}\n",
+SECTION_5	"\n\\paragraph{@1}~\\\\\n",
+SETSEC_2	"\n\\setcounter{section}{#1}\n",
+SETSEC_3	"\n\\setcounter{subsection}{#1}\n",
+SETSEC_4	"\n\\setcounter{subsubsection}{#1}\n",
+SETSEC_5	"\n\\setcounter{paragraph}{#1}\n",
+TITLE	"\\title{\n&2}\n\\author{\n&6\\\\\n&3}\n\\date{\n&5}\n\\maketitle\n",

@@ -1,0 +1,20 @@
+DOC_BEGIN	"~\\\\\n\\hspace*{2cm}\\framebox[13.5cm][l]{\
+~~\\begin{minipage}{12cm}\n\
+\\setcounter{sectionx}{0}{\\small\\baselineskip=10pt\n"
+DOC_END		"}\\end{minipage}}\\\\\n"
+TITLE	  	"{\\center{\\large &2~}\\\\\n\
+~&1\\\\\n~&3\\\\\n~&6\\\\\n~&7\\\\\n}\n"
+
+EXAM_BEGIN	"{\\baselineskip=#1pt\n\\tt\\obeylines\\catcode` =11\n"
+EXAM_END	"}\n",
+
+SECTION_1	"\n\\section*{@1}\n"
+SECTION_2	"\n\\subsection*{@1}\n"
+SECTION_3	"\n\\subsubsection*{@1}\n"
+SECTION_4	"\n\\paragraph*{@1}\n"
+SECTION_4	"\n\\subparagraph*{@1}\n"
+SETSEC_1	"\n\\setcounter{sectionx}{#1}\n"
+SETSEC_2	"\n\\setcounter{subsectionx}{#1}\n"
+SETSEC_3	"\n\\setcounter{subsubsectionx}{#1}\n"
+SETSEC_4	"\n\\setcounter{paragraphx}{#1}\n"
+SETSEC_5	"\n\\setcounter{subparagraphx}{#1}\n"
