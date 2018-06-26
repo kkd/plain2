@@ -8,7 +8,7 @@ static char rcsid[] =
 
 #include <stdio.h>
 #include <ctype.h>
-#include <varargs.h>
+#include <stdarg.h>
 #include "plain2.h"
 #include "macro.h"
 
@@ -189,11 +189,10 @@ char	*rstr;
 		buf++;
 	}
 }
-putMacro(macroNum, va_alist)
-int	macroNum;
-va_dcl
+putMacro(int macroNum, ...)
 {
 	va_list	ap;
+	int	format;
 	union	macroArg {
 		int	ma_num;
 		char	*ma_str;
@@ -226,7 +225,7 @@ va_dcl
 		}
 		mip = mip->cmac_next;
 	}
-	va_start(ap);
+	va_start(ap, format);
 	for (i = 1; i <= maxarg; i++) {
 		switch(argtype[i]) {
 		    case ATYPE_VOID:

@@ -546,7 +546,7 @@ register struct	text	*textp;
 {
 	int	ret;
 	if (textp->pListHead)
-		return;
+		return 0;
 	if (ret = checkIfDscrList(textp->body + textp->indent)) {
 		DBG1(7,"Matched with DSCR_LIST %s\n", textp->body);
 		if (ret < MAX_DSCRLEN) {

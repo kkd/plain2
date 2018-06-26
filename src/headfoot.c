@@ -208,7 +208,7 @@ int	end;
 	char	*header, *footer;
 
 	if (pageBp == NULL)
-		return;
+		return 0;
 	pickUpLine(pageBp->rbegin, &headerStr, &footerStr, begin, end);
 	DBG4(3, "%d:1st-Header <%s>\n%d:1-stFooter<%s>\n",
 	     pbp->rbegin, headerStr,
@@ -217,7 +217,7 @@ int	end;
 	if (headerStr == NULL && footerStr == NULL) {
 		/* No Header/Footer	*/
 		overwritePaging(begin, end, 0, 0);
-		return;
+		return 0;
 	}
 
 	if (headerStr)
@@ -234,14 +234,14 @@ int	end;
 			headerFields(header, &curHeader);
 			if (!sameFormat(&origHeader, &curHeader)) {
 				overwritePaging(begin, end, 0, 0);
-				return;
+				return 0;
 			}
 		}
 		if (footerStr && footer != NULL){
 			headerFields(footer, &curFooter);
 			if (!sameFormat(&origFooter, &curFooter)) {
 				overwritePaging(begin, end, 0, 0);
-				return;
+				return 0;
 			}
 		}
 	}

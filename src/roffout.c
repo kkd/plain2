@@ -458,13 +458,13 @@ int	vector;
 			ROFF_LEN(x1 - x0), ROFF_LEN((x1 - x0)/4.),
 			ROFF_X(x0 + (x1 - x0) / 2.),
 			ROFF_Y(y0 + (y1 - y0) / 2.));
-		return;
+		return 0;
 	}
 	if (style == SY_CIRCLE) {
 		printf("circle radius %f at %d, %d\n",
 		       ROFF_LEN(abs(x1 - x0) / 2.),
 		       ROFF_X((x1 + x0) / 2), ROFF_Y(y0 + (x1 - x0) / 2));
-		return;
+		return 0;
 	}
 	fputs("line", stdout);
 	switch (vector) {
@@ -564,7 +564,7 @@ char	**special8, **special9;
 #endif
 			 );
 		
-		return;
+		return 0;
 	}
 #ifdef	NEC_CCS
 	fputs(".4H\n.ce 0\n", stdout);

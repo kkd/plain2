@@ -187,7 +187,7 @@ int	*val;
 				*kind     = titleKeyTbl[i].kind;
 				*outlooks = titleKeyTbl[i].outlooks;
 				*val      = titleKeyTbl[i].value;
-				return;
+				return 0;
 			}
 			if (titleKeyTbl[i].where == W_BEGIN)
 				/* このパターンは行の先頭から始まらなければ

@@ -356,7 +356,7 @@ register struct	table	*tblp;
 	int	hattr;
 	char	*atr;
 	if (!wakuExist)
-		return;
+		return 0;
 	for (i = 0; i < maxLen; i++)
 		colPchrs[i] = 0;
 	for (l = begin; l < end; l++) {

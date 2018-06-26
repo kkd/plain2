@@ -66,7 +66,7 @@ int	end;
 	DBG2(9, "markIfJustified (%d-%d)\n", begin, end);
 	switch (indType(begin, end)) {
 	    case IND_INDENT:
-		return;
+		return 0;
 	    case IND_RIGHT:
 		tbp = newTextBlock(begin, end, TB_RIGHT);
 		break;
@@ -74,7 +74,7 @@ int	end;
 		tbp = newTextBlock(begin, end, TB_CENTER);
 		break;
 	    default:
-		return;
+		return 0;
 	}
 	for (l = begin; l < end; l++)
 		texts[l]->block = tbp;

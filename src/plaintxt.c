@@ -73,13 +73,13 @@ int	end;
 		if (texts[l]->blank || texts[l]->block
 		    || texts[l]->indent <= indent - MIN_INDENT
 		    || texts[l]->indent > indent)
-			return;
+			return 0;
 		if (texts[l]->indent < indent)
 			indent = texts[l]->indent;
 		texts[l]->block = tbp;
 		tbp->rend = l + 1;
 	}
-	return;
+	return 0;
 }
 plainText(begin, end)
 int	begin;

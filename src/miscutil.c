@@ -296,7 +296,7 @@ register struct transTable *trtp;
 		if (*s == trtp->special_char) {
 			for (tto=trtp->trans_to; *tto!= '\0'; tto++)
 				*(*top)++ = *tto;
-			return;
+			return 0;
 		}
 	}
 	*(*top)++ = *s;
@@ -509,7 +509,7 @@ int	(*func)();
 				rend = l + 1;
 			else if (!textp->blank
 				 && textp->block == NULL)
-				return;
+				return 0;
 			break;
 		    default:
 			fprintf(stderr, "PANIC(undefined status)%d\n", rstat);

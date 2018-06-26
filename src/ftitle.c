@@ -41,15 +41,15 @@ register struct	text	*textp;
 	char	*str;
 
 	if (textp->pListHead || textp->indent == 0)
-		return;
+		return 0;
 	if (firstByteFtitle[(unsigned char)*(textp->body + textp->indent)]
 	    == 0)
-		return;
+		return 0;
 	str = textp->body + textp->indent;
 	if (svp = kstrMatch(str, figTblMark)) {
 		textp->fTitle = svp->value;
 	}
-	else return ;
+	else return 0;
 
 	len = strlen(svp->pattern);
 	while (*(str + len) == ' ')
@@ -73,10 +73,10 @@ register struct	text	*textp;
 	while (*(str + ofst) == ' ')
 		ofst++;
 	textp->headLen = ofst + len;
-	return;
+	return 0;
     undo:
 	textp->fTitle = 0;
-	return;
+	return 0;
 }
 figTitle(begin, end)
 int	begin;

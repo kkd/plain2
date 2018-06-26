@@ -845,7 +845,7 @@ int	end;
 	l = begin;
 	if (begin >= end) {
 		level--;
-		return;
+		return 0;
 	}
 /* KK end */
 	while (l < end) {
@@ -926,7 +926,7 @@ int	d;
 		lastIndentType = -1;
 	}
 	if (type == IND_RESUME)
-		return;
+		return 0;
 	switch	(type) {
 	    case IND_CENTER:
 	    case IND_RIGHT:

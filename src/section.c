@@ -182,7 +182,7 @@ int	end;
 		if (texts[l]->block) {
 			if (texts[l]->block->type == TB_SECNUM) {
 				setSnumFor(texts[l]);
-				return;
+				return 0;
 			}
 			l = texts[l]->block->rend;
 		}

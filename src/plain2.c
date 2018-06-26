@@ -669,7 +669,7 @@ envOption()
 	char	buf[MAX_LINE_LEN];
 	FILE	*initf;
 	if ((plainEnv = getenv(PLAIN2_ENV)) == NULL)
-		return;
+		return 0;
 	if ((initf = fopen(plainEnv, "r")) == NULL) {
 		char	envOpt[MAX_LINE_LEN];
 		strcpy(envOpt, plainEnv);

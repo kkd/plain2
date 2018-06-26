@@ -225,7 +225,7 @@ struct	stroke	*stp;
 {
 	int	xend, yend;
 	if (!linePend)
-		return;
+		return 0;
 	linePend = 0;
 	if (vectAtr && (stp && stp->type == VECT_END))
 		vectAtr = VECT_BOTH;
@@ -361,13 +361,13 @@ int	lnum;
 		hit++;
 		if (!IS_FULL_LINE(lelp->yline.type)
 		    && !IS_FULL_LINE(lelp->xline.type))
-			return;
+			return 0;
 	}
 	if ((lelp = picLineMatch(subcIfKanji(colPos + xdir * 1, lnum + ydir)))
 	    != NULL) {
 		hit++;
 		if (!IS_FULL_LINE(lelp->xline.type))
-			return;
+			return 0;
 	}
 	if (hit)
 		(put->picLine)
@@ -394,7 +394,7 @@ struct	picMiscLines	*mlp;
 	
 	if (slantCnctOut(xdir, ydir, leftTurnX, leftTurnY, l) != 0
 	    || slantCnctOut(xdir, ydir, rightTurnX, rightTurnY, l) != 0)
-		return;
+		return 0;
 	slantExtent(xdir, ydir, l);
 	picMiscLinePut(mlp);
 }
@@ -646,7 +646,7 @@ int	end;
 		else {
 		    printf("<!-- PICTURE -->\n");
 		}
-		return ;
+		return 0;
 	    }
 	    else {
 		printf("<!-- plain2:PICTURE %05d %d %d -->\n",
@@ -659,7 +659,7 @@ int	end;
 			    pic_count);
 		}
 		pic_count++;
-		return ;
+		return 0;
 	    }
         }
 #endif /* HTML */

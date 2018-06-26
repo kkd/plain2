@@ -507,7 +507,7 @@ char	**special8, **special9;
 		htmlSuppressBlank(99999999);
 		printf("\n<!-- toc -->\n");
 /* KK end */
-		return;
+		return 0;
 	}
 }
 
@@ -706,7 +706,7 @@ int	*is_borderedp;
 		*is_borderedp = is_bordered;
 	}
 
-	if (!is_bordered) return;
+	if (!is_bordered) return 0;
 
 	/* process rowspan */
 	for (l = begin; l < end; l++) {
@@ -869,7 +869,7 @@ struct	table	*tblp;
 /* KK */
 	if (!htmlOld) {
 		htmlEmbededTable(begin, end, tblp);
-		return;
+		return 0;
 	}
 /* KK end */
 	if(htmlOnce) {
@@ -1042,7 +1042,7 @@ htmlExtendFootnote(char *text)
 	char *p;
 	int len;
 
-	if (footnote_count == 0) return;
+	if (footnote_count == 0) return 0;
 	len = strlen(footnote_text_table[footnote_count - 1])
 		+ strlen(text);
 	p = malloc(len + 1);

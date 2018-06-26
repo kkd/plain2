@@ -508,13 +508,13 @@ int	vector;
 	texLineWidth(style);
 	if (style == SY_ELPS || style == SY_HELPS) {
 		texEllipse(x0, y0, x1, y1, style);
-		return;
+		return 0;
 	}
 	if (style == SY_CIRCLE) {
 		printf("\\put(%d, %d){\\circle{%d}}\n",
 		       TEX_X((x0 + x1) / 2), TEX_Y(y0 - (x1 - x0) / 2),
 		       TEX_LEN((x1 - x0) / 2));
-		return;
+		return 0;
 	}
 	if (x0 == x1) {
 		xdir = 0;
@@ -650,7 +650,7 @@ char	**special8, **special9;
 			 ,special8, special9
 #endif
 			 );
-		return;
+		return 0;
 	}
 #ifdef	NEC_CCS
 	printf("\\input{a47}\n");

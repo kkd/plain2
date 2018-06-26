@@ -277,7 +277,7 @@ int	end;
 	struct	textBlock	*tbp;
 	l = begin;
 	if (begin >= end)
-		return;
+		return 0;
 	while (l < end) {
 		tbp = texts[l]->block;
 		if (tbp) {

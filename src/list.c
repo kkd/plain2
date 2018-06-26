@@ -186,7 +186,7 @@ struct	textBlock *lhbp;
 
 	if (texts[lhbp->rbegin]->length * 2 < rightMargin)
 		/* too Short	*/
-		return;
+		return 0;
 	if ((nextTbp = texts[lhbp->rend]->block)
 	    && (nextTbp->type == TB_PLAIN)) {
 		indent1  = texts[lhbp->rbegin]->indent;
